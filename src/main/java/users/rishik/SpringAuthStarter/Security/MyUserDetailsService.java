@@ -1,0 +1,21 @@
+package users.rishik.SpringAuthStarter.Security;
+
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import users.rishik.SpringAuthStarter.user.UserRepository;
+
+@Service
+public class MyUserDetailsService implements UserDetailsService {
+    private final UserRepository userRepository;
+
+    MyUserDetailsService(UserRepository userRepository){
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return new UserPrincipal(this.userRepository.findByEmail(username));
+    }
+}

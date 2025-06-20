@@ -1,63 +1,120 @@
-## 🔐 SpringAuthStarter
+# 🔐 SpringAuthStarter
 
-A **reusable and extensible Spring Boot starter project** designed for developers who need a robust, production-ready implementation of **JWT-based authentication and authorization** using Spring Security. Ideal for anyone looking to **kickstart secure REST API development** with clean architecture, proper exception handling, and modern development practices.
+A production-ready Spring Boot starter for JWT-based authentication and role-based authorization.
+
+![Java](https://img.shields.io/badge/Java-21-blue)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5-success)
+![License](https://img.shields.io/badge/License-Apache_2.0-green)
 
 ---
 
-### 🛠 Features
+## 📖 Overview
 
-* ✅ JWT-based authentication and stateless authorization
+This is a plug-and-play Spring Boot project that sets up robust JWT-based authentication and authorization. It includes secure login, registration, role-based access (USER/ADMIN), and a clean architecture for scalability and learning.
+
+---
+
+## ✨ Features
+
+* ✅ Stateless JWT authentication with role-based authorization
 * ✅ Spring Security 6 with custom `UserDetailsService` and `AuthenticationProvider`
-* ✅ Pre-built user registration and login APIs
-* ✅ Passwords hashed using BCrypt
-* ✅ Token validation via filter (`JwtAuthenticationFilter`)
-* ✅ Global error handling with custom `@RestControllerAdvice`
-* ✅ DTO validation with Jakarta Bean Validation
-* ✅ MapStruct integration for cleaner DTO-to-Entity mapping
-* ✅ MySQL + Spring Data JPA setup for persistence
-* ✅ Easily customizable and modular codebase
+* ✅ Admin-only endpoints with user management
+* ✅ BCrypt password hashing (strength: 12)
+* ✅ Global exception handling with detailed error responses
+* ✅ Input validation using Jakarta Bean Validation
+* ✅ DTO-to-Entity mapping via MapStruct
+* ✅ Clean and modular code structure
 
 ---
 
-### 📦 Tech Stack
+## 📃 Use Cases
+
+* Secure backend APIs for web/mobile apps
+* Microservice auth layers
+* MVPs and hackathons
+* Backend learning projects for students
+
+---
+
+## ⚙️ Setup Instructions
+
+```bash
+git clone https://github.com/yourname/SpringAuthStarter.git
+cd SpringAuthStarter
+```
+
+1. Update `src/main/resources/application.properties`:
+
+    * Configure MySQL DB URL, username/password
+    * Set JWT secret key and expiration
+
+2. Run the application:
+
+```bash
+./mvnw spring-boot:run
+```
+
+3. Test APIs via Postman, Swagger UI, or cURL
+
+---
+
+## 🔢 API Overview
+
+| Method | Endpoint            | Auth Required | Role  | Description                 |
+| ------ | ------------------- | ------------- | ----- | --------------------------- |
+| POST   | `/register`         | No            | -     | Register new user           |
+| POST   | `/login`            | No            | -     | Login and get JWT           |
+| POST   | `/logout`           | Yes           | USER  | Dummy logout (client-based) |
+| GET    | `/user/`            | Yes           | USER  | Get current user info       |
+| DELETE | `/user/`            | Yes           | USER  | Delete own account          |
+| GET    | `/admin/users`      | Yes           | ADMIN | Get list of all users       |
+| DELETE | `/admin/users/{id}` | Yes           | ADMIN | Delete user by ID           |
+
+> Note: The `logout` endpoint is implemented as a placeholder. Frontend should delete the token from local/session storage.
+
+---
+
+## 📂 Project Structure
+
+```
+src/main/java
+└─ users.rishik.SpringAuthStarter
+    ├─ Controllers/          # Auth, User, Admin controllers
+    ├─ Dtos/                 # DTOs for request payloads
+    ├─ Entities/             # JPA entities and enums
+    ├─ Exceptions/           # Global error handling
+    ├─ jwt/                  # JWT filter, service, and config
+    ├─ Repositories/         # Spring Data interfaces
+    ├─ Security/             # Security config and user principal
+    ├─ Services/             # Business logic and authentication
+    └─ UtilityClasses/       # View interfaces and mappers
+```
+
+---
+
+## 🔐 Security Design
+
+* Stateless JWT auth using `Authorization: Bearer <token>` header
+* Role-based access with method-level security via `@PreAuthorize`
+* `JwtAuthenticationFilter` for validating JWT on each request
+* Passwords stored using BCrypt hashing
+
+---
+
+## 📊 Tech Stack
 
 * Java 21
 * Spring Boot 3.5
 * Spring Security 6
 * Spring Data JPA
 * MySQL
-* JWT (`io.jsonwebtoken`)
+* JWT (io.jsonwebtoken)
 * MapStruct
 * Lombok
 
 ---
 
-### 📁 Project Structure
-
-```
-src/main/java
-└── users.rishik.SpringAuthStarter
-    ├── Exceptions/             # Centralized exception handling
-    ├── jwt/                    # JWT configuration, filter, service
-    ├── Security/               # Spring Security setup
-    ├── user/                   # User model, controller, service, repository
-    └── SpringAuthStarterApplication.java
-```
-
----
-
-### 🗓️ REST API Endpoints
-
-| Method | Endpoint         | Description                         | Auth Required |
-| ------ | ---------------- | ----------------------------------- | ------------- |
-| POST   | `/user/register` | Register a new user                 | No            |
-| POST   | `/user/login`    | Login and retrieve JWT token        | No            |
-| GET    | `/user/`         | Retrieve authenticated user details | Yes           |
-| DELETE | `/user/`         | Delete current authenticated user   | Yes           |
-
----
-
-### ⚙️ Configuration (application.properties)
+## 🔧 Configuration Sample
 
 ```properties
 # Application
@@ -76,41 +133,23 @@ spring.jpa.show-sql=true
 
 # JWT Configuration
 jwt.secret=your_secret_key
-jwt.expiration=3600000  # in milliseconds (e.g., 1 hour)
+jwt.expiration=3600000  # 1 hour
 
-# Error Handling
+# Exception Handling
 spring.mvc.throw-exception-if-no-handler-found=true
 spring.web.resources.add-mappings=false
 ```
 
 ---
 
-### 🎓 Getting Started
+## 💼 License
 
-1. **Clone the repository**
-2. **Update** your `application.properties`
-3. **Build and run** the application using your IDE or `./mvnw spring-boot:run`
-4. **Test** the endpoints using Postman, cURL, or Swagger (if added)
+Licensed under the **Apache License 2.0**. You are free to use and modify this project. **Attribution is appreciated but not required.**
 
----
-
-### 🌟 Why Use This?
-
-This template is ideal for:
-
-* Quickly bootstrapping secure Spring Boot applications
-* Developers learning Spring Security + JWT
-* Teams needing a clean and extendable base for microservices
-* Demonstrating backend skills with secure auth flows in portfolios
+If you find this project helpful and use it in your own work, a mention or link to this repo would be greatly appreciated!
 
 ---
 
-### 🚫 License
+## 🚀 Contributing
 
-This project is licensed under the **Apache License 2.0**. Feel free to use and extend it in your own applications.
-
----
-
-### 🔗 Contributions
-
-Have improvements or suggestions? Open an issue or submit a PR!
+Found a bug or want to suggest a feature? Contributions are welcome via PRs or issues.

@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import users.rishik.SpringAuthStarter.Dtos.LoginDto;
 import users.rishik.SpringAuthStarter.Dtos.UserDto;
@@ -28,5 +27,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginDto loginDto){
         return ResponseEntity.ok(this.userService.verify(loginDto));
+    }
+
+    // Empty implementation. Can be implemented using blacklist or removing token in the frontend
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        return ResponseEntity.noContent().build();
     }
 }

@@ -3,7 +3,7 @@ package users.rishik.SpringAuthStarter.Security;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import users.rishik.SpringAuthStarter.user.User;
+import users.rishik.SpringAuthStarter.Entities.User;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +21,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("User"));
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 
     @Override

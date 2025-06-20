@@ -1,29 +1,21 @@
-package users.rishik.SpringAuthStarter.user;
+package users.rishik.SpringAuthStarter.Controllers;
 
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import users.rishik.SpringAuthStarter.Security.UserPrincipal;
+import users.rishik.SpringAuthStarter.Services.UserService;
 
 @RestController
+@PreAuthorize("hasRole('USER')")
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
 
     UserController(UserService userService){
         this.userService = userService;
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<?> addUser(@RequestBody @Valid UserDto dto){
-        return new ResponseEntity<>(this.userService.addUser(dto), HttpStatus.CREATED);
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user){
-        return ResponseEntity.ok(this.userService.verify(user));
     }
 
     @GetMapping("/")

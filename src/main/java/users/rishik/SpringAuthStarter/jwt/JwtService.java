@@ -5,7 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
-import users.rishik.SpringAuthStarter.user.User;
+import users.rishik.SpringAuthStarter.Entities.User;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;

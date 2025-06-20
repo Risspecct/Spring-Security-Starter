@@ -1,7 +1,9 @@
-package users.rishik.SpringAuthStarter.user;
+package users.rishik.SpringAuthStarter.UtilityClasses;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import users.rishik.SpringAuthStarter.Dtos.UserDto;
+import users.rishik.SpringAuthStarter.Entities.User;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {

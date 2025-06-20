@@ -1,12 +1,17 @@
-package users.rishik.SpringAuthStarter.user;
+package users.rishik.SpringAuthStarter.Services;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import users.rishik.SpringAuthStarter.Dtos.LoginDto;
+import users.rishik.SpringAuthStarter.Dtos.UserDto;
+import users.rishik.SpringAuthStarter.Entities.User;
+import users.rishik.SpringAuthStarter.UtilityClasses.UserMapper;
 import users.rishik.SpringAuthStarter.jwt.JwtService;
 import users.rishik.SpringAuthStarter.Exceptions.NotFoundException;
+import users.rishik.SpringAuthStarter.Repositories.UserRepository;
 
 @Service
 public class UserService {
@@ -41,7 +46,7 @@ public class UserService {
         this.userRepository.deleteById(id);
     }
 
-    public String verify(User user){
+    public String verify(LoginDto user){
         Authentication auth = this.authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (auth.isAuthenticated()){

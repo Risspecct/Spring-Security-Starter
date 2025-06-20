@@ -3,6 +3,7 @@ package users.rishik.SpringAuthStarter.Controllers;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +31,7 @@ public class AuthController {
     }
 
     // Empty implementation. Can be implemented using blacklist or removing token in the frontend
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
         return ResponseEntity.noContent().build();

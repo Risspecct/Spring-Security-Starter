@@ -24,7 +24,8 @@ This is a plug-and-play Spring Boot project that sets up robust JWT-based authen
 * ✅ Input validation using Jakarta Bean Validation
 * ✅ DTO-to-Entity mapping via MapStruct
 * ✅ Clean and modular code structure
-
+* ✅ Rate Limiter for Auth endpoints
+  
 ---
 
 ## 📃 Use Cases

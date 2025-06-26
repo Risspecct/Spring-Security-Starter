@@ -47,6 +47,8 @@ public class UserService {
     }
 
     public String verify(LoginDto user){
+        if (!this.userRepository.existsByEmail(user.getEmail()))
+            throw new NotFoundException("User email not found. Register to make a new account");
         Authentication auth = this.authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (auth.isAuthenticated()){

@@ -18,6 +18,6 @@ public class MyUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         if (this.userRepository.existsByEmail(username))
             return new UserPrincipal(this.userRepository.findByEmail(username));
-        else throw new UsernameNotFoundException("No account is associated with the provided email. Please try again.");
+        else return null;
     }
 }

@@ -6,9 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import users.rishik.SpringAuthStarter.Security.UserPrincipal;
 import users.rishik.SpringAuthStarter.Services.UserService;
 
 @RestController
@@ -28,8 +26,8 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/")
-    public ResponseEntity<?> getUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-       return new ResponseEntity<>(this.userService.getUser(userPrincipal.getId()), HttpStatus.FOUND);
+    public ResponseEntity<?> getUser() {
+       return new ResponseEntity<>(this.userService.getUser(this.userService.getUserId()), HttpStatus.FOUND);
     }
 
     @Operation(summary = "Delete current user", description = "Delete the currently authenticated user account.")
@@ -39,8 +37,8 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @DeleteMapping("/")
-    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal UserPrincipal userPrincipal){
-        this.userService.deleteUser(userPrincipal.getId());
+    public ResponseEntity<?> deleteUser(){
+        this.userService.deleteUser(this.userService.getUserId());
         return ResponseEntity.ok("User deleted successfully");
     }
 }

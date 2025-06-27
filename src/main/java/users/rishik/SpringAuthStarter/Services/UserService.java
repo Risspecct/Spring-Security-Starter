@@ -1,5 +1,7 @@
 package users.rishik.SpringAuthStarter.Services;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,6 +22,9 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+
+    @Autowired
+    private HttpServletRequest request;
 
     UserService(UserRepository userRepository, UserMapper userMapper,
                 AuthenticationManager authenticationManager, JwtService jwtService){
@@ -44,6 +49,15 @@ public class UserService {
     public void deleteUser(long id){
         this.getUser(id);
         this.userRepository.deleteById(id);
+    }
+
+    public int getUserId() {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String jwt = authHeader.substring(7);
+            return jwtService.extractUserId(jwt);
+        }
+        throw new RuntimeException("Authorization header missing or invalid");
     }
 
     public String verify(LoginDto user){

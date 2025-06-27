@@ -19,8 +19,7 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-
-    @Operation(summary = "Get all users", description = "Retrieve a list of all registered users. Accessible only to ADMINs.")
+    @Operation(summary = "Get all users", description = "Retrieve a list of all registered users. Accessible only to ADMIN.")
     @ApiResponses({
             @ApiResponse(responseCode = "302", description = "Users retrieved successfully"),
             @ApiResponse(responseCode = "403", description = "Access denied - requires ADMIN role"),
@@ -31,7 +30,7 @@ public class AdminController {
         return new ResponseEntity<>(this.adminService.getAllUsers(), HttpStatus.FOUND);
     }
 
-    @Operation(summary = "Delete user by ID", description = "Delete a user by their ID. Accessible only to ADMINs.")
+    @Operation(summary = "Delete user by ID", description = "Delete a user by their ID. Accessible only to ADMIN.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User deleted successfully"),
             @ApiResponse(responseCode = "404", description = "User not found"),

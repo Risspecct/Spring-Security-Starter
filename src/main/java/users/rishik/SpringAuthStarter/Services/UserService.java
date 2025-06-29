@@ -11,6 +11,7 @@ import users.rishik.SpringAuthStarter.Dtos.LoginDto;
 import users.rishik.SpringAuthStarter.Dtos.UserDto;
 import users.rishik.SpringAuthStarter.Entities.User;
 import users.rishik.SpringAuthStarter.UtilityClasses.UserMapper;
+import users.rishik.SpringAuthStarter.UtilityClasses.UserView;
 import users.rishik.SpringAuthStarter.jwt.JwtService;
 import users.rishik.SpringAuthStarter.Exceptions.NotFoundException;
 import users.rishik.SpringAuthStarter.Repositories.UserRepository;
@@ -34,12 +35,13 @@ public class UserService {
         this.jwtService = jwtService;
     }
 
-    public User addUser(UserDto dto){
+    public UserView addUser(UserDto dto){
         if (userRepository.existsByEmail(dto.getEmail()))
             throw new IllegalArgumentException("Email already exists");
         dto.setPassword(encoder.encode(dto.getPassword()));
         User user = this.userMapper.toUsers(dto);
-        return this.userRepository.save(user);
+        this.userRepository.save(user);
+        return this.userRepository.findUserByEmail(user.getEmail());
     }
 
     public User getUser(long id){

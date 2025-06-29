@@ -20,7 +20,4 @@ public class UserDto {
 
     @NotBlank
     private String password;
-
-    @NotNull
-    private Roles role = Roles.USER;
 }

@@ -1,6 +1,8 @@
 package users.rishik.SpringAuthStarter.Services;
 
 import org.springframework.stereotype.Service;
+import users.rishik.SpringAuthStarter.Entities.Roles;
+import users.rishik.SpringAuthStarter.Entities.User;
 import users.rishik.SpringAuthStarter.Exceptions.NotFoundException;
 import users.rishik.SpringAuthStarter.Repositories.UserRepository;
 import users.rishik.SpringAuthStarter.UtilityClasses.UserView;
@@ -24,5 +26,11 @@ public class AdminService {
     public void deleteUser(long id){
         if (!this.userRepository.existsById(id)) throw new NotFoundException("User with id: " + id + " not found");
         this.userRepository.deleteById(id);
+    }
+
+    public void updateRole(long userId, Roles role){
+        User existingUser = this.userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+        existingUser.setRole(role);
+        this.userRepository.save(existingUser);
     }
 }

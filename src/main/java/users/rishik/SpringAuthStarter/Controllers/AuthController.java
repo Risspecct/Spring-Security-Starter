@@ -14,6 +14,8 @@ import users.rishik.SpringAuthStarter.Dtos.LoginDto;
 import users.rishik.SpringAuthStarter.Dtos.UserDto;
 import users.rishik.SpringAuthStarter.Services.UserService;
 
+import java.util.Map;
+
 @RestController
 public class AuthController {
     private final UserService userService;
@@ -42,7 +44,7 @@ public class AuthController {
     })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginDto loginDto){
-        return ResponseEntity.ok(this.userService.verify(loginDto));
+        return ResponseEntity.ok(Map.of("Token", this.userService.verify(loginDto)));
     }
 
     // Empty implementation. Can be implemented using blacklist or removing token in the frontend

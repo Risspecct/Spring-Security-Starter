@@ -25,7 +25,7 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "Unauthorized - token missing or invalid"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    @GetMapping("/")
+    @GetMapping("/me")
     public ResponseEntity<?> getUser() {
        return new ResponseEntity<>(this.userService.getUser(this.userService.getUserId()), HttpStatus.FOUND);
     }
@@ -36,7 +36,7 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "Unauthorized - token missing or invalid"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    @DeleteMapping("/")
+    @DeleteMapping("/me")
     public ResponseEntity<?> deleteUser(){
         this.userService.deleteUser(this.userService.getUserId());
         return ResponseEntity.ok("User deleted successfully");

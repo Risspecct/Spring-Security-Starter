@@ -1,5 +1,6 @@
 package users.rishik.SpringAuthStarter.Security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import users.rishik.SpringAuthStarter.jwt.JwtAuthenticationFilter;
 
+@Slf4j
 @EnableMethodSecurity
 @EnableWebSecurity
 @Configuration
@@ -35,6 +37,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+        log.info("Custom security filter chain set");
         return http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)

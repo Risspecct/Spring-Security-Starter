@@ -1,6 +1,7 @@
 package users.rishik.SpringAuthStarter.Services;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +17,7 @@ import users.rishik.SpringAuthStarter.jwt.JwtService;
 import users.rishik.SpringAuthStarter.Exceptions.NotFoundException;
 import users.rishik.SpringAuthStarter.Repositories.UserRepository;
 
+@Slf4j
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -41,16 +43,21 @@ public class UserService {
         dto.setPassword(encoder.encode(dto.getPassword()));
         User user = this.userMapper.toUsers(dto);
         this.userRepository.save(user);
+
+        log.info("Creating a user with username: {}", user.getEmail());
         return this.userRepository.findUserByEmail(user.getEmail());
     }
 
-    public User getUser(long id){
-        return this.userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found with id: " + id));
+    public UserView getUser(long id){
+        return this.userRepository.findUserById(id).orElseThrow(() -> new NotFoundException("User not found with id: " + id));
     }
 
     public void deleteUser(long id){
         this.getUser(id);
+
+        log.info("Attempting to delete user with id: {}", id);
         this.userRepository.deleteById(id);
+        log.info("User with id: {} deleted successfully", id);
     }
 
     public int getUserId() {

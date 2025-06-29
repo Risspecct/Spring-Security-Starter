@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import users.rishik.SpringAuthStarter.Dtos.RoleUpdateDto;
 import users.rishik.SpringAuthStarter.Services.AdminService;
 
+import java.util.Map;
+
 @RestController
 @PreAuthorize("hasRole('ADMIN')")
 @RequestMapping("/admin")
@@ -55,6 +57,6 @@ public class AdminController {
     @PostMapping("/users/roles")
     public ResponseEntity<?> updateUserRole(@RequestBody @Valid RoleUpdateDto dto){
         this.adminService.updateRole(dto.getUserId(), dto.getRole());
-        return ResponseEntity.ok().body("User role updated successfully");
+        return ResponseEntity.ok(Map.of("Message", "Role updated successfully for user id: " + dto.getUserId()));
     }
 }

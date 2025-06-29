@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +18,7 @@ import users.rishik.SpringAuthStarter.Exceptions.ApiErrorResponse;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter{
     private final JwtService jwtService;
@@ -31,6 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        log.debug("Checking for JWT token in the request");
         final String authHeader = request.getHeader("Authorization");
         String jwt;
         String username;
@@ -42,6 +45,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 
         jwt = authHeader.substring(7);
         username = this.jwtService.extractUsername(jwt);
+
+        log.debug("Extracted username from the token: {}", username);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -56,6 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+                log.warn("Invalid JWT token. Username not present in the database");
                 return;
             }
             if (jwtService.isTokenValid(jwt, userDetails.getUsername())) {

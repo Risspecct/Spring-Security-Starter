@@ -4,8 +4,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageConversionException;
@@ -27,9 +26,8 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // 400: Validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -73,7 +71,9 @@ public class GlobalExceptionHandler {
     // 400: Query/path parameter type mismatch
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
-        String message = "Invalid value for '" + ex.getName() + "': expected " + ex.getRequiredType().getSimpleName();
+        Class<?> requiredType = ex.getRequiredType();
+        String expectedType = (requiredType != null)? requiredType.getName(): "unknown";
+        String message = "Invalid value for '" + ex.getName() + "': expected " + expectedType;
         return buildResponse(HttpStatus.BAD_REQUEST, "Type Mismatch", message, request, ex);
     }
 
@@ -171,9 +171,9 @@ public class GlobalExceptionHandler {
 
         // Logging based on status
         if (status.is5xxServerError()) {
-            logger.error("500 Error at [{}]: {} | Exception: {}", request.getRequestURI(), message, ex.getClass().getSimpleName());
+            log.error("500 Error at [{}]: {} | Exception: {}", request.getRequestURI(), message, ex.getClass().getSimpleName());
         } else if (status.is4xxClientError()) {
-            logger.warn("{} {} at [{}]: {} | Exception: {}", status.value(), error, request.getRequestURI(), message, ex.getClass().getSimpleName());
+            log.warn("{} {} at [{}]: {} | Exception: {}", status.value(), error, request.getRequestURI(), message, ex.getClass().getSimpleName());
         }
 
         return new ResponseEntity<>(response, status);

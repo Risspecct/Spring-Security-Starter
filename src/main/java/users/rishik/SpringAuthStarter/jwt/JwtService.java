@@ -3,6 +3,7 @@ package users.rishik.SpringAuthStarter.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import users.rishik.SpringAuthStarter.Entities.User;
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.function.Function;
 
+@Slf4j
 @ConfigurationProperties(prefix = "jwt")
 @Service
 public class JwtService {
@@ -31,6 +33,7 @@ public class JwtService {
     }
 
     public String generateToken(User user){
+        log.info("Generating token for username: {}", user.getEmail());
         return Jwts
                 .builder()
                 .claim("userId", user.getId())
@@ -70,6 +73,7 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, String email) {
+        log.info("Validating JWT for user: {}", email);
         return email.equals(extractUsername(token)) && !this.isExpired(token);
     }
 }

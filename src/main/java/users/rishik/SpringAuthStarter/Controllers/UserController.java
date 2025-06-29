@@ -27,7 +27,7 @@ public class UserController {
     })
     @GetMapping("/me")
     public ResponseEntity<?> getUser() {
-       return new ResponseEntity<>(this.userService.getUser(this.userService.getUserId()), HttpStatus.FOUND);
+       return new ResponseEntity<>(this.userService.getUser(this.userService.getUserId()), HttpStatus.OK);
     }
 
     @Operation(summary = "Delete current user", description = "Delete the currently authenticated user account.")

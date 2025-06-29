@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import users.rishik.SpringAuthStarter.Services.RateLimiterService;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 public class RateLimiterFilter extends OncePerRequestFilter {
     @Autowired
@@ -33,6 +35,7 @@ public class RateLimiterFilter extends OncePerRequestFilter {
             var bucket = rateLimiterService.resolveBucket(clientIp);
 
             if (!bucket.tryConsume(1)) {
+                log.warn("Rate limit exceeded for IP: {}", request.getRemoteAddr());
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
 

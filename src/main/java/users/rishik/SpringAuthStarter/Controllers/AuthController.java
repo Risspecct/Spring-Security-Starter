@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +17,7 @@ import users.rishik.SpringAuthStarter.Services.UserService;
 
 import java.util.Map;
 
+@Slf4j
 @RestController
 public class AuthController {
     private final UserService userService;
@@ -32,6 +34,7 @@ public class AuthController {
     })
     @PostMapping("/register")
     public ResponseEntity<?> addUser(@RequestBody @Valid UserDto dto){
+        log.info("Register attempt for email {}", dto.getEmail());
         return new ResponseEntity<>(this.userService.addUser(dto), HttpStatus.CREATED);
     }
 
@@ -44,6 +47,7 @@ public class AuthController {
     })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginDto loginDto){
+        log.info("Login attempt for email: {}", loginDto.getEmail());
         return ResponseEntity.ok(Map.of("Token", this.userService.verify(loginDto)));
     }
 

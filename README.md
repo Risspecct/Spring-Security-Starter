@@ -1,6 +1,6 @@
 # 🔐 SpringAuthStarter
 
-A production-ready Spring Boot starter for JWT-based authentication and role-based authorization.
+A fully-featured Spring Boot authentication and authorization starter template with JWT, refresh token support, role-based access control, and production-grade features. Built for learning, rapid prototyping, and real-world backend systems.
 
 ![Java](https://img.shields.io/badge/Java-21-blue)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5-success)
@@ -10,68 +10,23 @@ A production-ready Spring Boot starter for JWT-based authentication and role-bas
 
 ## 📖 Overview
 
-This is a plug-and-play Spring Boot project that sets up robust JWT-based authentication and authorization. It includes secure login, registration, role-based access (USER/ADMIN), and a clean architecture for scalability and learning.
+SpringAuthStarter provides a plug-and-play authentication service with stateless JWT-based access, persistent refresh tokens, method-level security, rate limiting, and clean architecture. It is ideal for both personal projects and real-world backend setups.
 
 ---
 
 ## ✨ Features
 
-* ✅ Stateless JWT authentication with role-based authorization
-* ✅ Spring Security 6 with custom `UserDetailsService` and `AuthenticationProvider`
-* ✅ Admin-only endpoints with user management
-* ✅ BCrypt password hashing (strength: 12)
-* ✅ Global exception handling with detailed error responses
-* ✅ Input validation using Jakarta Bean Validation
-* ✅ DTO-to-Entity mapping via MapStruct
-* ✅ Clean and modular code structure
-* ✅ Rate Limiter for Auth endpoints
-  
----
-
-## 📃 Use Cases
-
-* Secure backend APIs for web/mobile apps
-* Microservice auth layers
-* MVPs and hackathons
-* Backend learning projects for students
-
----
-
-## ⚙️ Setup Instructions
-
-```bash
-git clone https://github.com/yourname/SpringAuthStarter.git
-cd SpringAuthStarter
-```
-
-1. Update `src/main/resources/application.properties`:
-
-    * Configure MySQL DB URL, username/password
-    * Set JWT secret key and expiration
-
-2. Run the application:
-
-```bash
-./mvnw spring-boot:run
-```
-
-3. Test APIs via Postman, Swagger UI, or cURL
-
----
-
-## 🔢 API Overview
-
-| Method | Endpoint            | Auth Required | Role  | Description                 |
-| ------ | ------------------- | ------------- | ----- | --------------------------- |
-| POST   | `/register`         | No            | -     | Register new user           |
-| POST   | `/login`            | No            | -     | Login and get JWT           |
-| POST   | `/logout`           | Yes           | USER  | Dummy logout (client-based) |
-| GET    | `/user/`            | Yes           | USER  | Get current user info       |
-| DELETE | `/user/`            | Yes           | USER  | Delete own account          |
-| GET    | `/admin/users`      | Yes           | ADMIN | Get list of all users       |
-| DELETE | `/admin/users/{id}` | Yes           | ADMIN | Delete user by ID           |
-
-> Note: The `logout` endpoint is implemented as a placeholder. Frontend should delete the token from local/session storage.
+* 🔑 JWT-based authentication (access + refresh tokens)
+* 🔄 Refresh token flow with token expiry and persistence
+* 🧑‍⚖️ Role-based access control (USER / ADMIN) with `@PreAuthorize`
+* 🧾 Structured global error handling with timestamped JSON responses
+* 🔒 BCrypt password hashing (strength: 12)
+* 📉 Rate limiting (Bucket4j) on authentication endpoints
+* 🧼 DTO ↔ Entity conversion with MapStruct
+* 🧪 Extensive Postman collection (positive + negative flows)
+* 📚 Swagger/OpenAPI documentation
+* 🛡 Secure headers (XSS, content sniffing, frame blocking)
+* 🧱 Modular, scalable code structure
 
 ---
 
@@ -79,78 +34,128 @@ cd SpringAuthStarter
 
 ```
 src/main/java
-└─ users.rishik.SpringAuthStarter
-    ├─ Controllers/          # Auth, User, Admin controllers
-    ├─ Dtos/                 # DTOs for request payloads
-    ├─ Entities/             # JPA entities and enums
-    ├─ Exceptions/           # Global error handling
-    ├─ jwt/                  # JWT filter, service, and config
-    ├─ Repositories/         # Spring Data interfaces
-    ├─ Security/             # Security config and user principal
-    ├─ Services/             # Business logic and authentication
-    └─ UtilityClasses/       # View interfaces and mappers
+└── users.rishik.SpringAuthStarter
+    ├── Controllers/        # Auth, User, Admin endpoints
+    ├── Dtos/               # DTOs for request/response
+    ├── Entities/           # User, Role, RefreshToken
+    ├── Exceptions/         # Custom exceptions & global handler
+    ├── jwt/                # JWT service, filter, and utils
+    ├── Repositories/       # JPA interfaces
+    ├── Security/           # AuthProvider, config, UserPrincipal
+    ├── Services/           # Core business logic
+    └── UtilityClasses/     # View interfaces and mappers
 ```
 
 ---
 
-## 🔐 Security Design
+## ⚙️ Getting Started
 
-* Stateless JWT auth using `Authorization: Bearer <token>` header
-* Role-based access with method-level security via `@PreAuthorize`
-* `JwtAuthenticationFilter` for validating JWT on each request
-* Passwords stored using BCrypt hashing
+```bash
+git clone https://github.com/yourname/SpringAuthStarter.git
+cd SpringAuthStarter
+./mvnw spring-boot:run
+```
+
+1. Update DB and JWT settings in `application.properties`:
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/your_db
+spring.datasource.username=root
+spring.datasource.password=your_password
+
+jwt.secret=your_secret_key
+jwt.expiration=3600000
+```
+
+2. Launch Swagger UI at `http://localhost:8080/swagger-ui.html`
+
+3. Or import the provided Postman collection for complete testing.
 
 ---
 
-## 📊 Tech Stack
+## 🔐 Authentication Flow
+
+1. **User registers or logs in** → receives access and refresh tokens
+2. **Access token** used to access protected endpoints
+3. **When access token expires** → use `/refreshToken` with refresh token
+4. **New access token** is issued without re-authentication
+
+Tokens are stored client-side (e.g., localStorage) and sent via `Authorization: Bearer <token>`
+
+---
+
+## 🔢 API Endpoints Summary
+
+| Method | Endpoint            | Auth | Role  | Description              |
+| ------ | ------------------- | ---- | ----- | ------------------------ |
+| POST   | `/register`         | ❌    | -     | Register new user        |
+| POST   | `/login`            | ❌    | -     | Login, returns tokens    |
+| POST   | `/refreshToken`     | ❌    | -     | Get new access token     |
+| POST   | `/logout`           | ✅    | USER  | Dummy client-side logout |
+| GET    | `/user/`            | ✅    | USER  | Get current user info    |
+| DELETE | `/user/`            | ✅    | USER  | Delete own account       |
+| GET    | `/admin/users`      | ✅    | ADMIN | List all users           |
+| DELETE | `/admin/users/{id}` | ✅    | ADMIN | Delete user by ID        |
+
+---
+
+## 🧪 Validation & Error Handling
+
+### ✅ Common Responses
+
+```json
+{
+  "status": 400,
+  "error": "Validation Error",
+  "message": "email: must be a well-formed email address",
+  "path": "/register",
+  "timestamp": "2025-06-21T15:18:48.257Z"
+}
+```
+
+### ❌ Negative Case Coverage
+
+* Duplicate email
+* Invalid credentials
+* Invalid input format (bad enum, missing fields)
+* Unauthorized (401) and forbidden (403) access
+
+---
+
+## 🧰 Postman Suite
+
+Included Postman collection features:
+
+* Register, login, logout
+* Refresh token testing
+* Admin and user-protected endpoints
+* Auto-token extraction using scripts
+* Negative scenarios for robustness testing
+
+---
+
+## 📦 Tech Stack
 
 * Java 21
 * Spring Boot 3.5
 * Spring Security 6
-* Spring Data JPA
-* MySQL
-* JWT (io.jsonwebtoken)
-* MapStruct
+* Spring Data JPA + MySQL
+* JWT (JJWT 0.12.6)
+* MapStruct for mapping
 * Lombok
-
----
-
-## 🔧 Configuration Sample
-
-```properties
-# Application
-spring.application.name=SpringAuthStarter
-
-# Database
-spring.datasource.url=jdbc:mysql://localhost:3306/db_name
-spring.datasource.username=root
-spring.datasource.password=your_password
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-
-# JPA
-spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-
-# JWT Configuration
-jwt.secret=your_secret_key
-jwt.expiration=3600000  # 1 hour
-
-# Exception Handling
-spring.mvc.throw-exception-if-no-handler-found=true
-spring.web.resources.add-mappings=false
-```
+* Bucket4j for rate limiting
+* Swagger (SpringDoc 2.x)
 
 ---
 
 ## 💼 License
 
-Licensed under the **Apache License 2.0**. You are free to use and modify this project. **Attribution is appreciated but not required.**
-
-If you find this project helpful and use it in your own work, a mention or link to this repo would be greatly appreciated!
+Licensed under the Apache License 2.0. Attribution is optional but appreciated.
 
 ---
 
-## 🚀 Contributing
+## 🤝 Contributing
 
-Found a bug or want to suggest a feature? Contributions are welcome via PRs or issues.
+Pull requests, suggestions, and issues are welcome!
+
+> Built by Rishik for serious backend development and learning.

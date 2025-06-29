@@ -6,10 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import users.rishik.SpringAuthStarter.Dtos.JwtResponseDto;
 import users.rishik.SpringAuthStarter.Dtos.LoginDto;
 import users.rishik.SpringAuthStarter.Dtos.UserDto;
+import users.rishik.SpringAuthStarter.Entities.RefreshToken;
 import users.rishik.SpringAuthStarter.Entities.User;
 import users.rishik.SpringAuthStarter.UtilityClasses.UserMapper;
 import users.rishik.SpringAuthStarter.UtilityClasses.UserView;
@@ -25,16 +28,19 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+    private final RefreshTokenService refreshTokenService;
 
     @Autowired
     private HttpServletRequest request;
 
     UserService(UserRepository userRepository, UserMapper userMapper,
-                AuthenticationManager authenticationManager, JwtService jwtService){
+                AuthenticationManager authenticationManager, JwtService jwtService,
+                RefreshTokenService refreshTokenService){
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     public UserView addUser(UserDto dto){
@@ -69,16 +75,20 @@ public class UserService {
         throw new RuntimeException("Authorization header missing or invalid");
     }
 
-    public String verify(LoginDto user){
+    public JwtResponseDto verify(LoginDto user){
         if (!this.userRepository.existsByEmail(user.getEmail()))
             throw new NotFoundException("User email not found. Register to make a new account");
         Authentication auth = this.authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+        log.debug("Authenticating user info");
         if (auth.isAuthenticated()){
-            User existingUser = this.userRepository.findByEmail(user.getEmail());
-            return this.jwtService.generateToken(existingUser);
+            RefreshToken refreshToken = this.refreshTokenService.createRefreshToken(user.getEmail());
+            return JwtResponseDto.builder()
+                    .accessToken(this.jwtService.generateToken(this.userRepository.findByEmail(user.getEmail())))
+                    .token(refreshToken.getToken())
+                    .build();
         } else {
-            return "Login Failed. Try again";
+            throw new UsernameNotFoundException("Invalid username/email provided");
         }
     }
 }

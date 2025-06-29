@@ -11,19 +11,27 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import users.rishik.SpringAuthStarter.Dtos.JwtResponseDto;
 import users.rishik.SpringAuthStarter.Dtos.LoginDto;
+import users.rishik.SpringAuthStarter.Dtos.RefreshTokenRequestDto;
 import users.rishik.SpringAuthStarter.Dtos.UserDto;
+import users.rishik.SpringAuthStarter.Entities.RefreshToken;
+import users.rishik.SpringAuthStarter.Exceptions.NotFoundException;
+import users.rishik.SpringAuthStarter.Services.RefreshTokenService;
 import users.rishik.SpringAuthStarter.Services.UserService;
-
-import java.util.Map;
+import users.rishik.SpringAuthStarter.jwt.JwtService;
 
 @Slf4j
 @RestController
 public class AuthController {
     private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
+    private final JwtService jwtService;
 
-    AuthController(UserService userService){
+    AuthController(UserService userService, RefreshTokenService refreshTokenService, JwtService jwtService) {
         this.userService = userService;
+        this.refreshTokenService = refreshTokenService;
+        this.jwtService = jwtService;
     }
 
     @Operation(summary = "Register a new user", description = "Register a new user with email, username, password, and role.")
@@ -48,18 +56,40 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginDto loginDto){
         log.info("Login attempt for email: {}", loginDto.getEmail());
-        return ResponseEntity.ok(Map.of("Token", this.userService.verify(loginDto)));
+        return ResponseEntity.ok(this.userService.verify(loginDto));
     }
 
     // Empty implementation. Can be implemented using blacklist or removing token in the frontend
+    @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Logout user", description = "Logout endpoint (dummy). Can be implemented using token blacklist or client-side removal.")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Logout successful (no content)"),
             @ApiResponse(responseCode = "401", description = "Unauthorized - token missing or invalid")
     })
-    @PreAuthorize("hasRole('USER')")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Refresh JWT token", description = "Regenerate JWT token before it expires")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Regeneration Successful"),
+            @ApiResponse(responseCode = "400", description = "Invalid input format"),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials"),
+            @ApiResponse(responseCode = "500", description = "Server error during regeneration")
+    })
+    @PostMapping("/refreshToken")
+    public ResponseEntity<?> refreshToken(@RequestBody @Valid RefreshTokenRequestDto requestDto){
+        return ResponseEntity.ok(refreshTokenService.findByToken(requestDto.getToken())
+                .map(this.refreshTokenService::checkExpiry)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String accessToken = this.jwtService.generateToken(user);
+                    return JwtResponseDto.builder()
+                            .accessToken(accessToken)
+                            .token(requestDto.getToken())
+                            .build();
+                }).orElseThrow(() -> new NotFoundException("Token not found"))
+            );
     }
 }

@@ -17,6 +17,7 @@ SpringAuthStarter provides a plug-and-play authentication service with stateless
 ## ✨ Features
 
 * 🔑 JWT-based authentication (access + refresh tokens)
+* 🔐 OAuth 2.0 based authorization 
 * 🔄 Refresh token flow with token expiry and persistence
 * 🧑‍⚖️ Role-based access control (USER / ADMIN) with `@PreAuthorize`
 * 🧾 Structured global error handling with timestamped JSON responses
@@ -40,10 +41,12 @@ src/main/java
     ├── Entities/           # User, Role, RefreshToken
     ├── Exceptions/         # Custom exceptions & global handler
     ├── jwt/                # JWT service, filter, and utils
+    ├── OAuth/              # OAuth Services, Handler and Principal 
     ├── Repositories/       # JPA interfaces
     ├── Security/           # AuthProvider, config, UserPrincipal
     ├── Services/           # Core business logic
     └── UtilityClasses/     # View interfaces and mappers
+    
 ```
 
 ---

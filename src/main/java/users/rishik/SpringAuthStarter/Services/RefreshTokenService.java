@@ -1,6 +1,7 @@
 package users.rishik.SpringAuthStarter.Services;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import users.rishik.SpringAuthStarter.Entities.RefreshToken;
 import users.rishik.SpringAuthStarter.Repositories.RefreshTokenRepository;
@@ -23,10 +24,12 @@ public class RefreshTokenService {
 
     public RefreshToken createRefreshToken(String username){
         log.info("Generating new Refresh Token");
-        RefreshToken existingToken = this.refreshTokenRepository.findByUser(this.userRepository.findByEmail(username));
+        RefreshToken existingToken = this.refreshTokenRepository.findByUser(this.userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("No user found with the provided email")));
         if (existingToken != null) this.refreshTokenRepository.delete(existingToken);
         RefreshToken refreshToken = RefreshToken.builder()
-                .user(this.userRepository.findByEmail(username))
+                .user(this.userRepository.findByEmail(username)
+                        .orElseThrow(() -> new UsernameNotFoundException("No user found with the provided email")))
                 .token(UUID.randomUUID().toString())
                 .expiryTime(Instant.now().plusMillis(36000000))
                 .build();

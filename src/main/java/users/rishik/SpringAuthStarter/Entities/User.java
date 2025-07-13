@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -23,11 +25,18 @@ public class User {
     @NotBlank
     private String email;
 
-    @Column(nullable = false)
-    @NotBlank
+    @Column(nullable = true)
     private String password;
 
     @Column(nullable = false)
     @NotNull
     private Roles role;
+
+    @Column
+    private String provider = "local";
+
+    @Column
+    @NotBlank
+    private String providerId;
+
 }

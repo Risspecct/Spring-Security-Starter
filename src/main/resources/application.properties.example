@@ -21,3 +21,8 @@ spring.web.resources.add-mappings=false
 
 # jackson
 spring.jackson.serialization.write-dates-as-timestamps=false
+
+# Oauth Configuration
+spring.security.oauth2.client.registration.google.client-id=your_client_id
+spring.security.oauth2.client.registration.google.client-secret=your_client_secret
+spring.security.oauth2.client.registration.google.scope=profile,email

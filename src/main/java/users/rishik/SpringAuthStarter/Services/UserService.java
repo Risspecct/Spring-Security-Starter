@@ -84,7 +84,8 @@ public class UserService {
         if (auth.isAuthenticated()){
             RefreshToken refreshToken = this.refreshTokenService.createRefreshToken(user.getEmail());
             return JwtResponseDto.builder()
-                    .accessToken(this.jwtService.generateToken(this.userRepository.findByEmail(user.getEmail())))
+                    .accessToken(this.jwtService.generateToken(this.userRepository.findByEmail(user.getEmail())
+                            .orElseThrow(() -> new UsernameNotFoundException("No user found with the provided email"))))
                     .token(refreshToken.getToken())
                     .build();
         } else {

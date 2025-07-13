@@ -17,6 +17,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import users.rishik.SpringAuthStarter.OAuth.CustomOAuth2SuccessHandler;
+import users.rishik.SpringAuthStarter.OAuth.CustomOAuth2UserService;
 import users.rishik.SpringAuthStarter.jwt.JwtAuthenticationFilter;
 
 @Slf4j
@@ -27,12 +29,17 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RateLimiterFilter rateLimiterFilter;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
     SecurityConfig(UserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter,
-                   RateLimiterFilter rateLimiterFilter){
+                   RateLimiterFilter rateLimiterFilter, CustomOAuth2UserService customOAuth2UserService,
+                   CustomOAuth2SuccessHandler customOAuth2SuccessHandler){
         this.userDetailsService = userDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.rateLimiterFilter = rateLimiterFilter;
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
     }
 
     @Bean
@@ -52,6 +59,13 @@ public class SecurityConfig {
                         .permitAll()
                         .anyRequest()
                         .authenticated())
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                        )
+                        .successHandler(customOAuth2SuccessHandler)
+                )
+                .formLogin(AbstractHttpConfigurer::disable)
                 .authenticationProvider(this.authenticationProvider())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(this.jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

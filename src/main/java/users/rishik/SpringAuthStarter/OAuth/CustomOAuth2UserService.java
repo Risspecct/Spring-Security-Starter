@@ -28,11 +28,20 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuth2User oAuth2User = new DefaultOAuth2UserService().loadUser(userRequest);
 
         log.info("CustomOAuth2UserService triggered");
+        String email = null;
+        String name = null;
+        String providerId = null;
 
-        String provider = userRequest.getClientRegistration().getRegistrationId(); // "google"
-        String providerId = oAuth2User.getAttribute("sub"); // Google ID
-        String email = oAuth2User.getAttribute("email");
-        String name = oAuth2User.getAttribute("name");
+        String provider = userRequest.getClientRegistration().getRegistrationId();
+        if ("google".equals(provider)) {
+            email = oAuth2User.getAttribute("email");
+            name = oAuth2User.getAttribute("name");
+            providerId = oAuth2User.getAttribute("sub");
+        } else if ("github".equals(provider)) {
+            email = oAuth2User.getAttribute("email"); // might be null
+            name = oAuth2User.getAttribute("login");
+            providerId = oAuth2User.getAttribute("id").toString();
+        }
 
         Optional<User> existingUser = userRepository.findByEmail(email);
 

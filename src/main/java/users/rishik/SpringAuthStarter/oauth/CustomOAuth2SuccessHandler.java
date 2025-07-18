@@ -1,4 +1,4 @@
-package users.rishik.SpringAuthStarter.OAuth;
+package users.rishik.SpringAuthStarter.oauth;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

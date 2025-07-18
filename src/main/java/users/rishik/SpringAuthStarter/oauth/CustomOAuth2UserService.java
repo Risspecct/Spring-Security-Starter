@@ -1,4 +1,4 @@
-package users.rishik.SpringAuthStarter.OAuth;
+package users.rishik.SpringAuthStarter.oauth;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;

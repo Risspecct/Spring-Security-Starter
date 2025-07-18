@@ -17,8 +17,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import users.rishik.SpringAuthStarter.OAuth.CustomOAuth2SuccessHandler;
-import users.rishik.SpringAuthStarter.OAuth.CustomOAuth2UserService;
+import users.rishik.SpringAuthStarter.oauth.CustomOAuth2SuccessHandler;
+import users.rishik.SpringAuthStarter.oauth.CustomOAuth2UserService;
 import users.rishik.SpringAuthStarter.jwt.security.JwtAuthenticationFilter;
 import users.rishik.SpringAuthStarter.rate_limiter.RateLimiterFilter;
 

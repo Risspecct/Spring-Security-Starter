@@ -1,4 +1,4 @@
-package users.rishik.SpringAuthStarter.OAuth;
+package users.rishik.SpringAuthStarter.oauth;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

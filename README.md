@@ -17,7 +17,7 @@ SpringAuthStarter provides a plug-and-play authentication service with stateless
 ## ✨ Features
 
 * 🔑 JWT-based authentication (access + refresh tokens)
-* 🔐 OAuth 2.0 based authorization 
+* 🔐 OAuth 2.0 login with GitHub and Google using Spring Security's client support 
 * 🔄 Refresh token flow with token expiry and persistence
 * 🧑‍⚖️ Role-based access control (USER / ADMIN) with `@PreAuthorize`
 * 🧾 Structured global error handling with timestamped JSON responses
@@ -36,17 +36,15 @@ SpringAuthStarter provides a plug-and-play authentication service with stateless
 ```
 src/main/java
 └── users.rishik.SpringAuthStarter
-    ├── Controllers/        # Auth, User, Admin endpoints
-    ├── Dtos/               # DTOs for request/response
-    ├── Entities/           # User, Role, RefreshToken
-    ├── Exceptions/         # Custom exceptions & global handler
-    ├── jwt/                # JWT service, filter, and utils
-    ├── OAuth/              # OAuth Services, Handler and Principal 
-    ├── Repositories/       # JPA interfaces
-    ├── Security/           # AuthProvider, config, UserPrincipal
-    ├── Services/           # Core business logic
-    └── UtilityClasses/     # View interfaces and mappers
-    
+    ├── admin/              # AdminController and AdminService
+    ├── config/             # Security and Role Hierarchy Configurations
+    ├── exceptions/         # Custom exceptions and global handler
+    ├── jwt/                # JWT auth (controllers, DTOs, service, filter, config)
+    ├── oauth/              # OAuth services, success handler, and user principal
+    ├── rate_limiter/       # IP-based request limiting logic
+    ├── user/               # Core user logic, roles, security, repository
+    ├── util/               # Home controller, view models, mappers
+    └── SpringAuthStarterApplication.java
 ```
 
 ---
@@ -144,6 +142,7 @@ Included Postman collection features:
 * Spring Security 6
 * Spring Data JPA + MySQL
 * JWT (JJWT 0.12.6)
+* OAuth 2.0
 * MapStruct for mapping
 * Lombok
 * Bucket4j for rate limiting

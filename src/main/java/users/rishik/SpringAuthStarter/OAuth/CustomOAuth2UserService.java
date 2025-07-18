@@ -7,9 +7,9 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import users.rishik.SpringAuthStarter.Entities.Roles;
-import users.rishik.SpringAuthStarter.Entities.User;
-import users.rishik.SpringAuthStarter.Repositories.UserRepository;
+import users.rishik.SpringAuthStarter.user.roles.Roles;
+import users.rishik.SpringAuthStarter.user.standard.User;
+import users.rishik.SpringAuthStarter.user.standard.UserRepository;
 
 import java.util.Optional;
 

@@ -1,11 +1,16 @@
 package users.rishik.SpringAuthStarter.jwt.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
+import users.rishik.SpringAuthStarter.exceptions.InvalidJwtException;
+import users.rishik.SpringAuthStarter.exceptions.JwtExpiredException;
 import users.rishik.SpringAuthStarter.user.standard.User;
 
 import javax.crypto.SecretKey;
@@ -45,12 +50,18 @@ public class JwtService {
     }
 
     private Claims extractClaims(String token){
-        return Jwts
-                .parser()
-                .verifyWith(this.getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            return Jwts
+                    .parser()
+                    .verifyWith(this.getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException ex){
+            throw new JwtExpiredException("Jwt Expired");
+        } catch (MalformedJwtException | SignatureException | IllegalArgumentException ex){
+            throw new InvalidJwtException("Jwt invalid. " + ex.getMessage());
+        }
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver){

@@ -5,16 +5,20 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import users.rishik.SpringAuthStarter.exceptions.ApiErrorResponse;
+import users.rishik.SpringAuthStarter.exceptions.InvalidJwtException;
+import users.rishik.SpringAuthStarter.exceptions.JwtExpiredException;
 
 import java.io.IOException;
 
@@ -32,8 +36,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.debug("Checking for JWT token in the request");
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws ServletException, IOException {
+        log.info("Checking for JWT token in the request");
         final String authHeader = request.getHeader("Authorization");
         String jwt;
         String username;
@@ -44,37 +48,54 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
         }
 
         jwt = authHeader.substring(7);
-        username = this.jwtService.extractUsername(jwt);
 
-        log.debug("Extracted username from the token: {}", username);
+        try {
+            username = this.jwtService.extractUsername(jwt);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            if (userDetails == null) {
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
+            log.debug("Extracted username from the token: {}", username);
 
-                ApiErrorResponse errorResponse = new ApiErrorResponse(HttpStatus.UNAUTHORIZED.value(),
-                        "Invalid mail id",
-                        "No account is associated with the provided email. Please try again.",
-                        request.getRequestURI());
-
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
-                log.warn("Invalid JWT token. Username not present in the database");
-                return;
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                if (userDetails == null) {
+                    errorResponse(request, response, new UsernameNotFoundException("Username not found"),
+                            "No account is associated with the provided email. Please try again.");
+                    return;
+                }
+                if (jwtService.isTokenValid(jwt, userDetails.getUsername())) {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
-            if (jwtService.isTokenValid(jwt, userDetails.getUsername())) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
+        } catch (JwtExpiredException ex) {
+            errorResponse(request, response, ex, "Use refresh token to get a new JWT");
+            return;
+        } catch (InvalidJwtException ex) {
+            errorResponse(request, response, ex, "Login to get a valid token");
+            return;
+        } catch (Exception ex) {
+            errorResponse(request, response, ex, "Unexpected error occurred");
         }
         filterChain.doFilter(request, response);
+    }
+
+    private void errorResponse(HttpServletRequest request, HttpServletResponse response, Exception ex, String desc) throws IOException {
+        log.info("Error raised in JWT Filer");
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        ApiErrorResponse errorResponse = new ApiErrorResponse(HttpStatus.UNAUTHORIZED.value(),
+                ex.getMessage(),
+                desc,
+                request.getRequestURI()
+        );
+
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+        response.getWriter().flush();
     }
 }

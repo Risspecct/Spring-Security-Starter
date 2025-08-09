@@ -3,6 +3,7 @@ package users.rishik.SpringAuthStarter.exceptions;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -13,6 +14,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.*;
@@ -22,6 +24,9 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.security.SignatureException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
@@ -158,6 +163,30 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleUnhandled(Exception ex, HttpServletRequest request) {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "An unexpected error occurred.", request, ex);
+    }
+
+    @ExceptionHandler(TransactionSystemException.class)
+    public ResponseEntity<Map<String, String>> handleTransactionSystemException(TransactionSystemException ex) {
+        Throwable rootCause = ex.getRootCause();
+        Map<String, String> errors = new HashMap<>();
+
+        if (rootCause instanceof ConstraintViolationException constraintViolationEx) {
+            Set<ConstraintViolation<?>> violations = constraintViolationEx.getConstraintViolations();
+            for (ConstraintViolation<?> violation : violations) {
+                String field = violation.getPropertyPath().toString();
+                String message = violation.getMessage();
+                errors.put(field, message);
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        }
+
+        if (rootCause instanceof DataIntegrityViolationException) {
+            errors.put("database", "A database constraint was violated (possible duplicate or invalid value).");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
+        }
+
+        errors.put("error", "An unexpected error occurred during transaction commit.");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
     }
 
     // 🔄 Centralized logging and response building

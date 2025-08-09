@@ -34,7 +34,7 @@ nbdist/
 .vscode/
 
 # Sensitive Configuration
-src/main/resources/application.properties
+.env
 
 # Documentation (optional, only if you don't want to track this file)
 HELP.md

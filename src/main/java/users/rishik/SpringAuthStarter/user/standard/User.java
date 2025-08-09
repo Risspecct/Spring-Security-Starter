@@ -38,6 +38,6 @@ public class User {
 
     @Column
     @NotBlank
-    private String providerId;
+    private String providerId = "local";
 
 }

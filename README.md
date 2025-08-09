@@ -1,163 +1,145 @@
-# 🔐 SpringAuthStarter
+# SpringAuthStarter
 
-A fully-featured Spring Boot authentication and authorization starter template with JWT, refresh token support, role-based access control, and production-grade features. Built for learning, rapid prototyping, and real-world backend systems.
+SpringAuthStarter is a **plug-and-play authentication starter kit** for Spring Boot applications. It provides ready-to-use **JWT Authentication**, **Google & GitHub OAuth2 login**, and **role-based access control**, so you can integrate secure authentication into any backend project in minutes.
 
 ![Java](https://img.shields.io/badge/Java-21-blue)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5-success)
-![License](https://img.shields.io/badge/License-Apache_2.0-green)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 
 ---
 
-## 📖 Overview
+## **Features**
 
-SpringAuthStarter provides a plug-and-play authentication service with stateless JWT-based access, persistent refresh tokens, method-level security, rate limiting, and clean architecture. It is ideal for both personal projects and real-world backend setups.
-
----
-
-## ✨ Features
-
-* 🔑 JWT-based authentication (access + refresh tokens)
-* 🔐 OAuth 2.0 login with GitHub and Google using Spring Security's client support 
-* 🔄 Refresh token flow with token expiry and persistence
-* 🧑‍⚖️ Role-based access control (USER / ADMIN) with `@PreAuthorize`
-* 🧾 Structured global error handling with timestamped JSON responses
-* 🔒 BCrypt password hashing (strength: 12)
-* 📉 Rate limiting (Bucket4j) on authentication endpoints
-* 🧼 DTO ↔ Entity conversion with MapStruct
-* 🧪 Extensive Postman collection (positive + negative flows)
-* 📚 Swagger/OpenAPI documentation
-* 🛡 Secure headers (XSS, content sniffing, frame blocking)
-* 🧱 Modular, scalable code structure
+* **JWT-based Authentication** – Secure stateless APIs.
+* **Google & GitHub OAuth2 Login** – Easy third-party login integration.
+* **Role-Based Access Control** – Built-in roles: `ADMIN`, `USER`.
+* **Default Admin & User Creation** – Auto-create accounts via `.env` or environment variables.
+* **Swagger-Friendly OAuth URLs** – Copy-paste OAuth login URLs directly from API docs.
+* **Easily Reusable** – Copy the auth package into any Spring Boot app.
 
 ---
 
-## 📂 Project Structure
+## **Getting Started**
 
-```
-src/main/java
-└── users.rishik.SpringAuthStarter
-    ├── admin/              # AdminController and AdminService
-    ├── config/             # Security and Role Hierarchy Configurations
-    ├── exceptions/         # Custom exceptions and global handler
-    ├── jwt/                # JWT auth (controllers, DTOs, service, filter, config)
-    ├── oauth/              # OAuth services, success handler, and user principal
-    ├── rate_limiter/       # IP-based request limiting logic
-    ├── user/               # Core user logic, roles, security, repository
-    ├── util/               # Home controller, view models, mappers
-    └── SpringAuthStarterApplication.java
-```
-
----
-
-## ⚙️ Getting Started
+### **1. Clone the repository**
 
 ```bash
-git clone https://github.com/yourname/SpringAuthStarter.git
+git clone https://github.com/yourusername/SpringAuthStarter.git
 cd SpringAuthStarter
-./mvnw spring-boot:run
 ```
 
-1. Update DB and JWT settings in `application.properties`:
+### **2. Configure Environment Variables**
 
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/your_db
-spring.datasource.username=root
-spring.datasource.password=your_password
+SpringAuthStarter supports `.env` files in local development (via `spring-dotenv`) and standard environment variables in production.
 
-jwt.secret=your_secret_key
-jwt.expiration=3600000
+**Create a `.env` file in the project root:**
+
+```env
+SPRING_APPLICATION_NAME=SpringAuthStarter
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=db_name
+DB_USER=root
+DB_PASSWORD=your_password
+
+JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
+JPA_HIBERNATE_DDL_AUTO=update
+JPA_SHOW_SQL=true
+
+JWT_SECRET=secret_key
+JWT_EXPIRATION=3600000
+
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_client_secret
+GOOGLE_SCOPE=profile,email
+
+GITHUB_CLIENT_ID=your_client_id
+GITHUB_CLIENT_SECRET=your_client_secret
+GITHUB_SCOPE=user:email
+GITHUB_CLIENT_NAME=GitHub
+GITHUB_AUTH_URI=https://github.com/login/oauth/authorize
+GITHUB_TOKEN_URI=https://github.com/login/oauth/access_token
+GITHUB_USER_INFO_URI=https://api.github.com/user
+GITHUB_USER_NAME_ATTRIBUTE=login
+
+DEFAULT_ADMIN_EMAIL=admin@example.com
+DEFAULT_ADMIN_PASSWORD=Admin@123
+DEFAULT_USER_EMAIL=user@example.com
+DEFAULT_USER_PASSWORD=User@123
 ```
 
-2. Launch Swagger UI at `http://localhost:8080/swagger-ui.html`
-
-3. Or import the provided Postman collection for complete testing.
+> **Note:** Never commit `.env` to version control.
 
 ---
 
-## 🔐 Authentication Flow
+### **3. Run the application**
 
-1. **User registers or logs in** → receives access and refresh tokens
-2. **Access token** used to access protected endpoints
-3. **When access token expires** → use `/refreshToken` with refresh token
-4. **New access token** is issued without re-authentication
+#### From source:
 
-Tokens are stored client-side (e.g., localStorage) and sent via `Authorization: Bearer <token>`
+```bash
+mvn spring-boot:run
+```
 
----
+*(Requires Spring Boot Maven plugin in `pom.xml`)*
 
-## 🔢 API Endpoints Summary
+#### From JAR:
 
-| Method | Endpoint            | Auth | Role  | Description              |
-| ------ | ------------------- | ---- | ----- | ------------------------ |
-| POST   | `/register`         | ❌    | -     | Register new user        |
-| POST   | `/login`            | ❌    | -     | Login, returns tokens    |
-| POST   | `/refreshToken`     | ❌    | -     | Get new access token     |
-| POST   | `/logout`           | ✅    | USER  | Dummy client-side logout |
-| GET    | `/user/`            | ✅    | USER  | Get current user info    |
-| DELETE | `/user/`            | ✅    | USER  | Delete own account       |
-| GET    | `/admin/users`      | ✅    | ADMIN | List all users           |
-| DELETE | `/admin/users/{id}` | ✅    | ADMIN | Delete user by ID        |
+```bash
+mvn clean package
+java -jar target/SpringAuthStarter-0.0.1-SNAPSHOT.jar
+```
 
 ---
 
-## 🧪 Validation & Error Handling
+## **Default Account Auto-Creation**
 
-### ✅ Common Responses
+On startup, the application will:
+
+* Check if `DEFAULT_ADMIN_EMAIL` and `DEFAULT_ADMIN_PASSWORD` exist.
+* If the account doesn’t exist in DB, create it with role `ADMIN`.
+* Do the same for `DEFAULT_USER_EMAIL` and `DEFAULT_USER_PASSWORD` with role `USER`.
+
+This is handled by `DataInitializer` using Spring's `Environment` abstraction so it works with `.env` and production env vars.
+
+---
+
+## **OAuth Login Flow**
+
+### **Direct login URLs**
+
+Instead of redirecting inside Swagger, the login endpoints return the OAuth login URL as JSON.
+
+Example:
 
 ```json
 {
-  "status": 400,
-  "error": "Validation Error",
-  "message": "email: must be a well-formed email address",
-  "path": "/register",
-  "timestamp": "2025-06-21T15:18:48.257Z"
+  "loginUrl": "http://localhost:8080/oauth2/authorization/google"
 }
 ```
 
-### ❌ Negative Case Coverage
-
-* Duplicate email
-* Invalid credentials
-* Invalid input format (bad enum, missing fields)
-* Unauthorized (401) and forbidden (403) access
+Paste the URL into a new browser tab to start the OAuth login flow.
 
 ---
 
-## 🧰 Postman Suite
+## **Integrating Into Your Own App**
 
-Included Postman collection features:
-
-* Register, login, logout
-* Refresh token testing
-* Admin and user-protected endpoints
-* Auto-token extraction using scripts
-* Negative scenarios for robustness testing
+1. Copy the `security`, `jwt`, and `oauth` packages into your project.
+2. Update your database config and OAuth credentials in `.env` or `application.properties`.
+3. Include the dependencies from this starter in your `pom.xml`.
 
 ---
 
-## 📦 Tech Stack
+## **Why Use SpringAuthStarter?**
 
-* Java 21
-* Spring Boot 3.5
-* Spring Security 6
-* Spring Data JPA + MySQL
-* JWT (JJWT 0.12.6)
-* OAuth 2.0
-* MapStruct for mapping
-* Lombok
-* Bucket4j for rate limiting
-* Swagger (SpringDoc 2.x)
+* Saves days of boilerplate setup.
+* Works with both **MySQL** and **PostgreSQL**.
+* OAuth-ready out of the box.
+* Easy to extend for custom roles and permissions.
 
 ---
 
-## 💼 License
+## **License**
 
-Licensed under the Apache License 2.0. Attribution is optional but appreciated.
-
----
-
-## 🤝 Contributing
-
-Pull requests, suggestions, and issues are welcome!
-
-> Built by Rishik for serious backend development and learning.
+This project is licensed under the MIT License.

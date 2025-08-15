@@ -14,6 +14,7 @@ SpringAuthStarter is a **plug-and-play authentication starter kit** for Spring B
 * **JWT-based Authentication** – Secure stateless APIs.
 * **Google & GitHub OAuth2 Login** – Easy third-party login integration.
 * **Role-Based Access Control** – Built-in roles: `ADMIN`, `USER`.
+* **Rate Limiting** - Limit user login requests per minute using JBucket.
 * **Default Admin & User Creation** – Auto-create accounts via `.env` or environment variables.
 * **Swagger-Friendly OAuth URLs** – Copy-paste OAuth login URLs directly from API docs.
 * **Easily Reusable** – Copy the auth package into any Spring Boot app.

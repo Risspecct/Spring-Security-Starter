@@ -131,6 +131,24 @@ POST /login
 
 Use the returned JWT as `Authorization: Bearer <token>` for protected routes.
 
+
+### Default Users for Testing
+
+To help you explore the features of this app, you can use the following test accounts:
+
+| Role  | Email                                         | Password  |
+| ----- | --------------------------------------------- |-----------|
+| Admin | [admin@example.com](mailto:admin@example.com) | Admin@123 |
+| User  | [user@example.com](mailto:user@example.com)   | User@123  |
+
+> **Note:** These accounts are for testing purposes only. You can also register your own account if you prefer.
+
+**How to Test:**
+
+1. Visit the app login page: [https://spring-security-starter.onrender.com](https://spring-security-starter.onrender.com)
+2. Use one of the above credentials to log in.
+3. Explore features according to your role (Admin or User).
+
 ---
 
 ## Environment Variables
@@ -144,10 +162,9 @@ Use the returned JWT as `Authorization: Bearer <token>` for protected routes.
 | DEFAULT\_ADMIN\_EMAIL | Admin account email    | [admin@example.com](mailto:admin@example.com) |
 
 ---
-
 ## API Documentation
 
-Swagger UI is available at: `/swagger-ui.html` or `/swagger-ui/index.html`.
+Swagger UI is available at: `/swagger-ui.html` or `/swagger-ui/index.html` or `/docs`.
 
 ---
 

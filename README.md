@@ -1,146 +1,171 @@
-# SpringAuthStarter
+# SpringAuthStarter – Secure Your Spring Boot APIs in Minutes
 
-SpringAuthStarter is a **plug-and-play authentication starter kit** for Spring Boot applications. It provides ready-to-use **JWT Authentication**, **Google & GitHub OAuth2 login**, and **role-based access control**, so you can integrate secure authentication into any backend project in minutes.
+**SpringAuthStarter** is a production-ready authentication starter kit for Spring Boot. It offers **JWT-based authentication**, **Google & GitHub OAuth2 login**, and **role-based access control** — all in one reusable package to secure your backend quickly.
 
-![Java](https://img.shields.io/badge/Java-21-blue)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5-success)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+**Live Demo:** [https://spring-security-starter.onrender.com](https://spring-security-starter.onrender.com)
 
-
----
-
-## **Features**
-
-* **JWT-based Authentication** – Secure stateless APIs.
-* **Google & GitHub OAuth2 Login** – Easy third-party login integration.
-* **Role-Based Access Control** – Built-in roles: `ADMIN`, `USER`.
-* **Rate Limiting** - Limit user login requests per minute using JBucket.
-* **Default Admin & User Creation** – Auto-create accounts via `.env` or environment variables.
-* **Swagger-Friendly OAuth URLs** – Copy-paste OAuth login URLs directly from API docs.
-* **Easily Reusable** – Copy the auth package into any Spring Boot app.
+![Java](https://img.shields.io/badge/Java-21-blue) ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5-success) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)![Database](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20MySQL-orange) ![Security](https://img.shields.io/badge/Security-JWT%20%7C%20OAuth2-green) ![Docker](https://img.shields.io/badge/Container-Docker-blue) ![Hosting](https://img.shields.io/badge/Hosting-Render-purple)
 
 ---
 
-## **Getting Started**
+## 📑 Table of Contents
 
-### **1. Clone the repository**
+1. [Overview](#overview)
+2. [Features](#features)
+3. [Architecture](#architecture)
+4. [Tech Stack](#tech-stack)
+5. [Installation & Setup](#installation--setup)
+6. [Usage](#usage)
+7. [Environment Variables](#environment-variables)
+8. [API Documentation](#api-documentation)
+9. [Why Use This](#why-use-this)
+10. [Contributing](#contributing)
+11. [License](#license)
+
+---
+
+## Overview
+
+SpringAuthStarter eliminates the need to write repetitive Spring Security boilerplate. It’s ideal for:
+
+* Securing REST APIs with JWT.
+* Adding social login via Google & GitHub.
+* Enforcing role-based endpoint protection.
+* Providing ready-to-use Swagger API docs.
+
+---
+
+## Features
+
+**Authentication:**
+
+* JWT issuance & validation for stateless auth.
+* Password hashing with BCrypt.
+
+**Authorization:**
+
+* Role-based access control (`ADMIN`, `USER`).
+* Secure admin-only and user-only routes.
+
+**OAuth2:**
+
+* Google & GitHub login.
+* Direct OAuth login URLs in JSON responses.
+
+**Utilities:**
+
+* Rate limiting via Bucket4J.
+* Default admin/user creation from environment variables.
+* Swagger UI for interactive API testing.
+
+---
+
+## Architecture
+
+1. User sends login/registration request.
+2. Backend validates credentials & issues JWT.
+3. JWT is used for all subsequent protected requests.
+4. OAuth2 flow handled by Spring Security client.
+
+---
+
+## Tech Stack
+
+* **Language:** Java 21
+* **Framework:** Spring Boot 3.5
+* **Security:** Spring Security, OAuth2 Client
+* **Database:** MySQL/PostgreSQL
+* **Others:** JJWT, Bucket4J, Spring Data JPA, Swagger
+* **Containerization:** Docker
+* **Hosting:** Render
+
+---
+
+## Installation & Setup
 
 ```bash
 git clone https://github.com/yourusername/SpringAuthStarter.git
 cd SpringAuthStarter
 ```
 
-### **2. Configure Environment Variables**
+Create `.env` (see `.env.example`) with DB, JWT, and OAuth credentials.
 
-SpringAuthStarter supports `.env` files in local development (via `spring-dotenv`) and standard environment variables in production.
-
-**Create a `.env` file in the project root:**
-
-```env
-SPRING_APPLICATION_NAME=SpringAuthStarter
-
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=db_name
-DB_USER=root
-DB_PASSWORD=your_password
-
-JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
-JPA_HIBERNATE_DDL_AUTO=update
-JPA_SHOW_SQL=true
-
-JWT_SECRET=secret_key
-JWT_EXPIRATION=3600000
-
-GOOGLE_CLIENT_ID=your_client_id
-GOOGLE_CLIENT_SECRET=your_client_secret
-GOOGLE_SCOPE=profile,email
-
-GITHUB_CLIENT_ID=your_client_id
-GITHUB_CLIENT_SECRET=your_client_secret
-GITHUB_SCOPE=user:email
-GITHUB_CLIENT_NAME=GitHub
-GITHUB_AUTH_URI=https://github.com/login/oauth/authorize
-GITHUB_TOKEN_URI=https://github.com/login/oauth/access_token
-GITHUB_USER_INFO_URI=https://api.github.com/user
-GITHUB_USER_NAME_ATTRIBUTE=login
-
-DEFAULT_ADMIN_EMAIL=admin@example.com
-DEFAULT_ADMIN_PASSWORD=Admin@123
-DEFAULT_USER_EMAIL=user@example.com
-DEFAULT_USER_PASSWORD=User@123
-```
-
-> **Note:** Never commit `.env` to version control.
-
----
-
-### **3. Run the application**
-
-#### From source:
+Run locally:
 
 ```bash
 mvn spring-boot:run
 ```
 
-*(Requires Spring Boot Maven plugin in `pom.xml`)*
-
-#### From JAR:
+Or build & run JAR:
 
 ```bash
 mvn clean package
-java -jar target/SpringAuthStarter-0.0.1-SNAPSHOT.jar
+java -jar target/spring-auth-starter.jar
 ```
 
 ---
 
-## **Default Account Auto-Creation**
+## Usage
 
-On startup, the application will:
+### Register User
 
-* Check if `DEFAULT_ADMIN_EMAIL` and `DEFAULT_ADMIN_PASSWORD` exist.
-* If the account doesn’t exist in DB, create it with role `ADMIN`.
-* Do the same for `DEFAULT_USER_EMAIL` and `DEFAULT_USER_PASSWORD` with role `USER`.
-
-This is handled by `DataInitializer` using Spring's `Environment` abstraction so it works with `.env` and production env vars.
-
----
-
-## **OAuth Login Flow**
-
-### **Direct login URLs**
-
-Instead of redirecting inside Swagger, the login endpoints return the OAuth login URL as JSON.
-
-Example:
-
-```json
+```bash
+POST /register
 {
-  "loginUrl": "http://localhost:8080/oauth2/authorization/google"
+  "email": "user@example.com",
+  "username": "User",
+  "password": "pass123",
+  "role": "USER"
 }
 ```
 
-Paste the URL into a new browser tab to start the OAuth login flow.
+### Login & Get JWT
+
+```bash
+POST /login
+{
+  "email": "user@example.com",
+  "password": "pass123"
+}
+```
+
+Use the returned JWT as `Authorization: Bearer <token>` for protected routes.
 
 ---
 
-## **Integrating Into Your Own App**
+## Environment Variables
 
-1. Copy the `security`, `jwt`, and `oauth` packages into your project.
-2. Update your database config and OAuth credentials in `.env` or `application.properties`.
-3. Include the dependencies from this starter in your `pom.xml`.
-
----
-
-## **Why Use SpringAuthStarter?**
-
-* Saves days of boilerplate setup.
-* Works with both **MySQL** and **PostgreSQL**.
-* OAuth-ready out of the box.
-* Easy to extend for custom roles and permissions.
+| Variable              | Description            | Example                                       |
+| --------------------- | ---------------------- | --------------------------------------------- |
+| DB\_HOST              | Database host          | localhost                                     |
+| DB\_PORT              | Database port          | 5432                                          |
+| JWT\_SECRET           | Secret key for JWT     | change\_me                                    |
+| GOOGLE\_CLIENT\_ID    | Google OAuth client ID | abc.apps.googleusercontent.com                |
+| DEFAULT\_ADMIN\_EMAIL | Admin account email    | [admin@example.com](mailto:admin@example.com) |
 
 ---
 
-## **License**
+## API Documentation
 
-This project is licensed under the MIT License.
+Swagger UI is available at: `/swagger-ui.html` or `/swagger-ui/index.html`.
+
+---
+
+## Why Use This
+
+* Saves days of setup work.
+* Works out-of-the-box with OAuth2.
+* Easily extendable for custom roles/permissions.
+* Production-ready security configuration.
+
+---
+
+## Contributing
+
+Pull requests are welcome! For major changes, open an issue first to discuss.
+
+---
+
+## License
+
+MIT License – see [LICENSE](LICENSE) file for details.

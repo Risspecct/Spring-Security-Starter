@@ -11,6 +11,6 @@ public class OAuthRedirectController {
     @Operation(summary = "Redirect to OAuth2 login", description = "provider = google or github")
     public String getOAuthLoginUrl(@PathVariable String provider) {
         // Construct the URL to paste in a browser
-        return "http://localhost:8080/oauth2/authorization/" + provider;
+        return "https://spring-security-starter.onrender.com/oauth2/authorization/" + provider;
     }
 }

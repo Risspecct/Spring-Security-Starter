@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @PreAuthorize("hasRole('USER')")
-@RequestMapping("/user")
+@RequestMapping({"/user", "/api/user"})
 public class UserController {
     private final UserService userService;
 

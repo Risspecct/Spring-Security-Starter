@@ -4,10 +4,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
+import users.rishik.SpringAuthStarter.jwt.refresh_tokens.RefreshToken;
+import users.rishik.SpringAuthStarter.jwt.refresh_tokens.RefreshTokenService;
 import users.rishik.SpringAuthStarter.user.standard.User;
 import users.rishik.SpringAuthStarter.user.standard.UserRepository;
 import users.rishik.SpringAuthStarter.jwt.security.JwtService;
@@ -19,10 +23,16 @@ import java.io.IOException;
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
-    CustomOAuth2SuccessHandler(UserRepository userRepository, JwtService jwtService){
+    @Value("${app.oauth2.success-redirect-uri:http://localhost:8080/oauth-success.html}")
+    private String oauthSuccessRedirectUri;
+
+    CustomOAuth2SuccessHandler(UserRepository userRepository, JwtService jwtService,
+                               RefreshTokenService refreshTokenService){
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Override
@@ -40,11 +50,15 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
         log.info("Generating jwt token for OAUth user");
 
-        // Generate JWT using existing logic
         String token = jwtService.generateToken(user);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
 
-        // Send token in response (you can also set cookie or redirect with token)
-        response.setContentType("application/json");
-        response.getWriter().write("{\"token\": \"" + token + "\"}");
+        String redirectUrl = UriComponentsBuilder.fromUriString(oauthSuccessRedirectUri)
+                .queryParam("accessToken", token)
+                .queryParam("refreshToken", refreshToken.getToken())
+                .build(true)
+                .toUriString();
+
+        response.sendRedirect(redirectUrl);
     }
 }

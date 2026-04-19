@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OAuth Success</title>
+</head>
+<body>
+<script src="/auth-client.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const accessToken = params.get("accessToken");
+  const refreshToken = params.get("refreshToken");
+  const USER_DASHBOARD_PATH = "/dashboard.html";
+  const ADMIN_DASHBOARD_PATH = "/admin-dashboard.html";
+
+  AuthClient.setTokens(accessToken, refreshToken);
+  AuthClient.redirectByRole(USER_DASHBOARD_PATH, ADMIN_DASHBOARD_PATH);
+</script>
+</body>
+</html>

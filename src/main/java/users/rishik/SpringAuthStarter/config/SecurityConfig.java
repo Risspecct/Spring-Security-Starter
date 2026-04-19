@@ -1,6 +1,7 @@
 package users.rishik.SpringAuthStarter.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -51,10 +52,24 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/",
+                                "/index.html",
+                                "/dashboard.html",
+                                "/admin-dashboard.html",
+                                "/auth-client.js",
+                                "/favicon.ico",
+                                "/error",
+                                "/api",
                                 "/register",
                                 "/login",
+                                "/api/auth/**",
                                 "/auth/**",
+                                "/oauth2/**",
+                                "/oauth-success.html",
+                                "/rate-limit/**",
+                                "/api/rate-limit/**",
                                 "/refreshToken",
+                                "/webjars/**",
+                                "/static/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/docs")
@@ -86,5 +101,19 @@ public class SecurityConfig {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(this.userDetailsService);
         provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
         return provider;
+    }
+
+    @Bean
+    public FilterRegistrationBean<RateLimiterFilter> disableRateLimiterAutoRegistration(RateLimiterFilter filter) {
+        FilterRegistrationBean<RateLimiterFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
+    }
+
+    @Bean
+    public FilterRegistrationBean<JwtAuthenticationFilter> disableJwtAutoRegistration(JwtAuthenticationFilter filter) {
+        FilterRegistrationBean<JwtAuthenticationFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
     }
 }

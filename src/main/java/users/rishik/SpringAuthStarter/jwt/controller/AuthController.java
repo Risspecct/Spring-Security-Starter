@@ -40,7 +40,7 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "Invalid input or duplicate email"),
             @ApiResponse(responseCode = "500", description = "Server error during registration")
     })
-    @PostMapping("/register")
+    @PostMapping({"/register", "/api/auth/register"})
     public ResponseEntity<?> addUser(@RequestBody @Valid UserDto dto){
         log.info("Register attempt for email {}", dto.getEmail());
         return new ResponseEntity<>(this.userService.addUser(dto), HttpStatus.CREATED);
@@ -53,7 +53,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Invalid credentials"),
             @ApiResponse(responseCode = "500", description = "Server error during login")
     })
-    @PostMapping("/login")
+    @PostMapping({"/login", "/api/auth/login"})
     public ResponseEntity<?> login(@RequestBody @Valid LoginDto loginDto){
         log.info("Login attempt for email: {}", loginDto.getEmail());
         return ResponseEntity.ok(this.userService.verify(loginDto));
@@ -66,7 +66,7 @@ public class AuthController {
             @ApiResponse(responseCode = "204", description = "Logout successful (no content)"),
             @ApiResponse(responseCode = "401", description = "Unauthorized - token missing or invalid")
     })
-    @PostMapping("/logout")
+    @PostMapping({"/logout", "/api/auth/logout"})
     public ResponseEntity<Void> logout() {
         return ResponseEntity.noContent().build();
     }
@@ -78,7 +78,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Invalid credentials"),
             @ApiResponse(responseCode = "500", description = "Server error during regeneration")
     })
-    @PostMapping("/refreshToken")
+    @PostMapping({"/refreshToken", "/api/auth/refresh-token"})
     public ResponseEntity<?> refreshToken(@RequestBody @Valid RefreshTokenRequestDto requestDto){
         return ResponseEntity.ok(refreshTokenService.findByToken(requestDto.getToken())
                 .map(this.refreshTokenService::checkExpiry)

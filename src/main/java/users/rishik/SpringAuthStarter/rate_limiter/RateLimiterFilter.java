@@ -1,6 +1,7 @@
 package users.rishik.SpringAuthStarter.rate_limiter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.bucket4j.ConsumptionProbe;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,14 +30,16 @@ public class RateLimiterFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (request.getRequestURI().equals("/login") && request.getMethod().equalsIgnoreCase("POST")) {
+        if (isRateLimitedLoginRequest(request)) {
             String clientIp = request.getRemoteAddr();
-            var bucket = rateLimiterService.resolveBucket(clientIp);
+            ConsumptionProbe probe = rateLimiterService.consumeLoginAttempt(clientIp);
+            attachRateLimitHeaders(response, probe.getRemainingTokens());
 
-            if (!bucket.tryConsume(1)) {
+            if (!probe.isConsumed()) {
                 log.warn("Rate limit exceeded for IP: {}", request.getRemoteAddr());
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
+                response.setHeader("Retry-After", String.valueOf(Math.max(1, probe.getNanosToWaitForRefill() / 1_000_000_000)));
 
                 ApiErrorResponse errorResponse = new ApiErrorResponse(HttpStatus.TOO_MANY_REQUESTS.value(), "Rate Limit Exceeded", "Too many login attempts. Try again later.", request.getRequestURI());
                 response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
@@ -46,5 +49,19 @@ public class RateLimiterFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isRateLimitedLoginRequest(HttpServletRequest request) {
+        if (!request.getMethod().equalsIgnoreCase("POST")) {
+            return false;
+        }
+        String uri = request.getRequestURI();
+        return uri.equals("/login") || uri.equals("/api/auth/login");
+    }
+
+    private void attachRateLimitHeaders(HttpServletResponse response, long remaining) {
+        response.setHeader("X-RateLimit-Limit", String.valueOf(rateLimiterService.getLoginLimitCapacity()));
+        response.setHeader("X-RateLimit-Remaining", String.valueOf(Math.max(remaining, 0)));
+        response.setHeader("X-RateLimit-Used", String.valueOf(rateLimiterService.getLoginLimitCapacity() - Math.max(remaining, 0)));
     }
 }

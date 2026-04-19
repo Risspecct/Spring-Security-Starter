@@ -1,0 +1,412 @@
+﻿<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SpringAuthStarter | Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "background": "#131313",
+          "surface-bright": "#393939",
+          "inverse-primary": "#5d5f5f",
+          "outline": "#919191",
+          "surface-variant": "#353535",
+          "on-primary-fixed-variant": "#e2e2e2",
+          "on-surface": "#e2e2e2",
+          "surface-container-highest": "#353535",
+          "surface-container-high": "#2a2a2a",
+          "on-tertiary-fixed": "#ffffff",
+          "surface-container-lowest": "#0e0e0e",
+          "on-tertiary": "#23005c",
+          "on-primary-fixed": "#ffffff",
+          "secondary": "#a4c9ff",
+          "on-surface-variant": "#c6c6c6",
+          "inverse-surface": "#e2e2e2",
+          "secondary-fixed-dim": "#6eaeff",
+          "primary": "#ffffff",
+          "surface": "#131313",
+          "on-background": "#e2e2e2",
+          "on-error": "#690005",
+          "on-primary-container": "#000000",
+          "on-tertiary-fixed-variant": "#e9ddff",
+          "tertiary": "#e9ddff",
+          "surface-dim": "#131313",
+          "primary-container": "#d4d4d4",
+          "secondary-container": "#004883",
+          "tertiary-fixed": "#6d3bd7",
+          "error-container": "#93000a",
+          "primary-fixed-dim": "#454747",
+          "error": "#ffb4ab",
+          "inverse-on-surface": "#303030",
+          "on-error-container": "#ffdad6",
+          "tertiary-fixed-dim": "#5516be",
+          "secondary-fixed": "#a4c9ff",
+          "on-secondary-fixed": "#001c39",
+          "tertiary-container": "#a078ff",
+          "on-secondary": "#001c39",
+          "outline-variant": "#474747",
+          "primary-fixed": "#5d5f5f",
+          "surface-tint": "#c6c6c7",
+          "on-secondary-container": "#d4e3ff",
+          "on-secondary-fixed-variant": "#003c70",
+          "on-primary": "#1a1c1c",
+          "surface-container": "#1f1f1f",
+          "surface-container-low": "#1b1b1b"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "fontFamily": {
+          "headline": ["Manrope"],
+          "body": ["Inter"],
+          "label": ["Inter"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  .editorial-shadow {
+    box-shadow: 0px 12px 32px rgba(0, 0, 0, 0.4);
+  }
+</style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary selection:text-on-primary">
+<header class="fixed top-0 w-full z-50 flex justify-between items-center h-16 px-8 bg-[#131313] font-['Manrope'] tracking-tight">
+  <div class="flex items-center gap-8">
+    <span class="text-xl font-bold tracking-tighter text-white">SpringAuthStarter</span>
+    <nav class="hidden md:flex gap-6 items-center">
+      <button type="button" data-tab="overview" class="nav-tab-top text-white border-b-2 border-white pb-1">Dashboard</button>
+      <button type="button" data-tab="users" class="nav-tab-top text-[#c6c6c6] hover:text-white transition-colors">Users</button>
+      <button type="button" data-tab="logs" class="nav-tab-top text-[#c6c6c6] hover:text-white transition-colors">Logs</button>
+      <button type="button" data-tab="settings" class="nav-tab-top text-[#c6c6c6] hover:text-white transition-colors">Settings</button>
+    </nav>
+  </div>
+  <div class="flex items-center gap-4">
+    <button type="button" class="p-2 hover:bg-[#2a2a2a] transition-all rounded-lg scale-95 duration-200">
+      <span class="material-symbols-outlined text-white">notifications</span>
+    </button>
+    <button id="logoutBtn" type="button" class="flex items-center gap-2 px-3 py-1.5 rounded bg-surface-container-high hover:bg-[#2a2a2a] transition-all scale-95 duration-200">
+      <span class="material-symbols-outlined text-white">logout</span>
+      <span class="text-xs uppercase tracking-widest font-bold">Logout</span>
+    </button>
+  </div>
+</header>
+
+<aside class="h-screen w-64 fixed left-0 top-0 border-r border-[#474747]/15 flex flex-col pt-20 pb-8 px-4 bg-[#131313]">
+  <div class="mb-10 px-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden">
+        <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBd4R7tqAegnTuBh-_5jOi1oEVFPXx61H4m2A_t98LW9JGg3N38yjvqUjALOTNszXOBpLuDP-v0vxAHHReVprJQfALy5n3QRunlQXtiqRv7xCpY_EMmIiMYfIJ6LU-kemo81RZWlqh0OkV817IwBZlwRXoQSDRXQEVTG1lMygDvYsE3-7wB8A2cKtCegA_daiQKBad14YHKhT9iYZugexE8ptFWeJl-4Ud-Dfs-bwAZcZCsFAMQ1uFnxngKQv4hZuaHHW1xm2ULCdE"/>
+      </div>
+      <div>
+        <p class="text-[10px] font-headline uppercase tracking-widest text-[#a078ff]">Admin Core</p>
+        <p class="text-xs text-on-surface-variant font-light">Terminal Access</p>
+      </div>
+    </div>
+  </div>
+  <nav class="flex-1 space-y-1">
+    <button type="button" data-tab="overview" class="nav-tab-side w-full text-left flex items-center gap-3 px-4 py-3 text-white bg-[#1b1b1b] font-headline uppercase tracking-widest text-[10px]">
+      <span class="material-symbols-outlined scale-90">dashboard</span> Overview
+    </button>
+    <button type="button" data-tab="users" class="nav-tab-side w-full text-left flex items-center gap-3 px-4 py-3 text-[#c6c6c6] opacity-70 hover:bg-[#1b1b1b] hover:opacity-100 transition-all font-headline uppercase tracking-widest text-[10px]">
+      <span class="material-symbols-outlined scale-90">admin_panel_settings</span> Access Control
+    </button>
+    <button type="button" data-tab="logs" class="nav-tab-side w-full text-left flex items-center gap-3 px-4 py-3 text-[#c6c6c6] opacity-70 hover:bg-[#1b1b1b] hover:opacity-100 transition-all font-headline uppercase tracking-widest text-[10px]">
+      <span class="material-symbols-outlined scale-90">history_edu</span> Session Audit
+    </button>
+    <button type="button" data-tab="settings" class="nav-tab-side w-full text-left flex items-center gap-3 px-4 py-3 text-[#c6c6c6] opacity-70 hover:bg-[#1b1b1b] hover:opacity-100 transition-all font-headline uppercase tracking-widest text-[10px]">
+      <span class="material-symbols-outlined scale-90">settings</span> Settings
+    </button>
+  </nav>
+</aside>
+
+<main class="ml-64 pt-24 pb-12 px-12 min-h-screen flex flex-col gap-8">
+  <section id="tab-overview" class="tab-section">
+    <section>
+      <h1 class="text-6xl font-headline font-extrabold tracking-tighter text-white mb-2">Admin Profile</h1>
+      <p class="text-on-surface-variant max-w-xl font-light leading-relaxed">Manage identity parameters and privileged system controls.</p>
+    </section>
+
+    <div class="grid grid-cols-12 gap-6 mt-8">
+      <div class="col-span-12 lg:col-span-8 bg-surface-container-low rounded-xl p-10 editorial-shadow relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-tertiary-container/5 rounded-full blur-3xl -mr-20 -mt-20"></div>
+        <div class="relative z-10">
+          <div class="flex justify-between items-start mb-12">
+            <div>
+              <span id="roleBadge" class="inline-block px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed font-headline text-[10px] font-bold tracking-[0.2em] uppercase rounded-full mb-4">ADMIN ACCESS</span>
+              <h2 class="text-4xl font-headline font-bold text-white">Greetings, <span id="welcomeName">Admin</span>.</h2>
+            </div>
+            <div class="flex items-center gap-2 text-on-surface-variant font-label text-xs uppercase tracking-widest">
+              <span class="material-symbols-outlined text-[14px]">verified_user</span>
+              Session Secured
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div class="space-y-1">
+              <label class="text-[10px] font-headline uppercase tracking-widest text-on-surface-variant opacity-60">Username</label>
+              <p id="usernameValue" class="text-xl font-medium text-white tracking-tight">loading...</p>
+            </div>
+            <div class="space-y-1">
+              <label class="text-[10px] font-headline uppercase tracking-widest text-on-surface-variant opacity-60">Email Address</label>
+              <p id="emailValue" class="text-xl font-medium text-white tracking-tight">loading...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+        <div class="bg-surface-container-high p-8 rounded-xl flex flex-col justify-center items-center text-center">
+          <div class="w-16 h-16 bg-tertiary-container/20 text-tertiary-container rounded-full flex items-center justify-center mb-4">
+            <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">shield_person</span>
+          </div>
+          <p class="text-[10px] font-headline uppercase tracking-[0.2em] text-on-surface-variant mb-1">Assigned Privilege</p>
+          <h3 id="roleTitle" class="text-2xl font-headline font-bold text-tertiary">System Administrator</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-users" class="tab-section hidden bg-surface-container-low rounded-xl p-8 border border-outline-variant/20">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+      <h3 class="text-sm font-headline uppercase tracking-[0.2em] text-on-surface-variant">Admin Endpoint Console</h3>
+      <button id="refreshUsersBtn" class="px-5 py-2.5 bg-primary text-on-primary text-xs font-bold uppercase tracking-widest rounded-lg hover:opacity-90 transition-all" type="button">Refresh Users</button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="bg-surface-container-high rounded-lg p-4 border border-outline-variant/20">
+        <h4 class="text-xs font-bold uppercase tracking-widest mb-3 text-secondary">Update User Role</h4>
+        <form id="roleForm" class="flex gap-2 items-center">
+          <input id="roleUserId" class="flex-1 bg-surface-container-highest border-none rounded px-3 py-2 text-sm" placeholder="User ID" type="number" required />
+          <select id="roleValue" class="bg-surface-container-highest border-none rounded px-3 py-2 text-sm" required>
+            <option value="USER">USER</option>
+            <option value="ADMIN">ADMIN</option>
+          </select>
+          <button class="px-4 py-2 bg-secondary text-black text-xs font-bold uppercase tracking-widest rounded" type="submit">Apply</button>
+        </form>
+      </div>
+
+      <div class="bg-surface-container-high rounded-lg p-4 border border-outline-variant/20">
+        <h4 class="text-xs font-bold uppercase tracking-widest mb-3 text-error">Delete User</h4>
+        <form id="deleteForm" class="flex gap-2 items-center">
+          <input id="deleteUserId" class="flex-1 bg-surface-container-highest border-none rounded px-3 py-2 text-sm" placeholder="User ID" type="number" required />
+          <button class="px-4 py-2 bg-error text-black text-xs font-bold uppercase tracking-widest rounded" type="submit">Delete</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="overflow-auto border border-outline-variant/20 rounded-lg">
+      <table class="w-full text-sm">
+        <thead class="bg-surface-container-high">
+          <tr class="text-left">
+            <th class="p-3">ID</th>
+            <th class="p-3">Username</th>
+            <th class="p-3">Email</th>
+            <th class="p-3">Role</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody"></tbody>
+      </table>
+    </div>
+
+    <p id="adminMessage" class="mt-4 text-xs text-on-surface-variant"></p>
+  </section>
+
+  <section id="tab-logs" class="tab-section hidden bg-surface-container-low rounded-xl p-8 border border-outline-variant/20">
+    <h2 class="text-2xl font-headline font-bold text-white mb-4">Session Audit</h2>
+    <div class="space-y-3 text-sm text-on-surface-variant">
+      <p>Token verification and endpoint access events are active.</p>
+      <p>Use this area to plug in log stream APIs later.</p>
+      <p>Current mode: protected endpoints audited via JWT filter.</p>
+    </div>
+  </section>
+
+  <section id="tab-settings" class="tab-section hidden bg-surface-container-low rounded-xl p-8 border border-outline-variant/20">
+    <h2 class="text-2xl font-headline font-bold text-white mb-4">Admin Settings</h2>
+    <div class="space-y-3 text-sm text-on-surface-variant">
+      <p>OAuth Redirect Callback: <code>/oauth-success.html</code></p>
+      <p>Role Routing: Admin -> <code>/admin-dashboard.html</code></p>
+      <p>User Routing: User -> <code>/dashboard.html</code></p>
+    </div>
+  </section>
+</main>
+
+<footer class="w-full py-6 mt-auto flex justify-between items-center px-12 bg-[#131313] font-['Inter'] text-[12px] border-t border-[#474747]/15">
+  <p class="text-[#c6c6c6]">© 2025 SPRINGAUTHSTARTER TECHNICAL. ALL RIGHTS RESERVED.</p>
+  <nav class="flex gap-8">
+    <a class="text-[#c6c6c6] hover:text-white transition-colors" href="#">Privacy Policy</a>
+    <a class="text-[#c6c6c6] hover:text-white transition-colors" href="#">Terms of Service</a>
+    <a class="text-[#c6c6c6] hover:text-white transition-colors" href="#">Security Audit</a>
+  </nav>
+</footer>
+
+<script src="/auth-client.js"></script>
+<script>
+  const LOGIN_PATH = AuthClient.LOGIN_PATH;
+  const USER_DASHBOARD_PATH = "/dashboard.html";
+
+  const usersTableBody = document.getElementById("usersTableBody");
+  const adminMessage = document.getElementById("adminMessage");
+  const tabButtons = document.querySelectorAll("[data-tab]");
+  const topTabs = document.querySelectorAll(".nav-tab-top");
+  const sideTabs = document.querySelectorAll(".nav-tab-side");
+
+  function setMessage(message, isError = false) {
+    adminMessage.textContent = message;
+    adminMessage.className = isError ? "mt-4 text-xs text-error" : "mt-4 text-xs text-secondary";
+  }
+
+  function logout() {
+    AuthClient.logout();
+  }
+
+  function setActiveTabStyles(tab) {
+    topTabs.forEach((btn) => {
+      if (btn.dataset.tab === tab) {
+        btn.className = "nav-tab-top text-white border-b-2 border-white pb-1";
+      } else {
+        btn.className = "nav-tab-top text-[#c6c6c6] hover:text-white transition-colors";
+      }
+    });
+
+    sideTabs.forEach((btn) => {
+      if (btn.dataset.tab === tab) {
+        btn.className = "nav-tab-side w-full text-left flex items-center gap-3 px-4 py-3 text-white bg-[#1b1b1b] font-headline uppercase tracking-widest text-[10px]";
+      } else {
+        btn.className = "nav-tab-side w-full text-left flex items-center gap-3 px-4 py-3 text-[#c6c6c6] opacity-70 hover:bg-[#1b1b1b] hover:opacity-100 transition-all font-headline uppercase tracking-widest text-[10px]";
+      }
+    });
+  }
+
+  function openTab(tab) {
+    document.querySelectorAll(".tab-section").forEach((section) => section.classList.add("hidden"));
+    document.getElementById(`tab-${tab}`).classList.remove("hidden");
+    setActiveTabStyles(tab);
+  }
+
+  tabButtons.forEach((btn) => {
+    btn.addEventListener("click", () => openTab(btn.dataset.tab));
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", logout);
+
+  async function loadCurrentUser() {
+    if (!AuthClient.getAccessToken()) {
+      logout();
+      return null;
+    }
+
+    const response = await AuthClient.apiRequest("/api/user/me", { method: "GET" });
+    if (!response.ok) {
+      logout();
+      return null;
+    }
+
+    const user = await response.json();
+    const role = (user.role || "USER").toUpperCase();
+    if (role !== "ADMIN") {
+      window.location.replace(USER_DASHBOARD_PATH);
+      return null;
+    }
+
+    document.getElementById("welcomeName").textContent = user.username || "Admin";
+    document.getElementById("usernameValue").textContent = user.username || "N/A";
+    document.getElementById("emailValue").textContent = user.email || "N/A";
+    document.getElementById("roleTitle").textContent = "System Administrator";
+    document.getElementById("roleBadge").textContent = "ADMIN ACCESS";
+    return user;
+  }
+
+  function renderUsers(users) {
+    usersTableBody.innerHTML = "";
+    users.forEach((user) => {
+      const tr = document.createElement("tr");
+      tr.className = "border-t border-outline-variant/20";
+      tr.innerHTML = `
+        <td class="p-3">${user.id}</td>
+        <td class="p-3">${user.username || "-"}</td>
+        <td class="p-3">${user.email || "-"}</td>
+        <td class="p-3">${(user.role || "USER").toUpperCase()}</td>
+      `;
+      usersTableBody.appendChild(tr);
+    });
+  }
+
+  async function fetchUsers() {
+    const response = await AuthClient.apiRequest("/api/admin/users", { method: "GET" });
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!response.ok) {
+      setMessage(data?.message || "Failed to fetch users", true);
+      return;
+    }
+
+    renderUsers(Array.isArray(data) ? data : []);
+    setMessage("Users loaded successfully");
+  }
+
+  async function updateRole(event) {
+    event.preventDefault();
+    const userId = Number(document.getElementById("roleUserId").value);
+    const role = document.getElementById("roleValue").value;
+
+    const response = await AuthClient.apiRequest("/api/admin/users/roles", {
+      method: "POST",
+      body: JSON.stringify({ userId, role })
+    });
+
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!response.ok) {
+      setMessage(data?.message || "Failed to update role", true);
+      return;
+    }
+
+    setMessage("Role updated successfully");
+    await fetchUsers();
+  }
+
+  async function deleteUser(event) {
+    event.preventDefault();
+    const userId = Number(document.getElementById("deleteUserId").value);
+
+    const response = await AuthClient.apiRequest(`/api/admin/users/${userId}`, { method: "DELETE" });
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!response.ok) {
+      setMessage(data?.message || "Failed to delete user", true);
+      return;
+    }
+
+    setMessage("User deleted successfully");
+    await fetchUsers();
+  }
+
+  document.getElementById("refreshUsersBtn").addEventListener("click", fetchUsers);
+  document.getElementById("roleForm").addEventListener("submit", updateRole);
+  document.getElementById("deleteForm").addEventListener("submit", deleteUser);
+
+  (async function bootstrap() {
+    const currentUser = await loadCurrentUser();
+    if (!currentUser) {
+      return;
+    }
+    openTab("overview");
+    await fetchUsers();
+  })();
+</script>
+</body></html>

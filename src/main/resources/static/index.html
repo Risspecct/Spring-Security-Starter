@@ -1,0 +1,349 @@
+﻿<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpringAuthStarter | AuthHub</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Inter:wght@100..900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            background: "#131313",
+            surface: "#131313",
+            "surface-container": "#1f1f1f",
+            "surface-container-low": "#1b1b1b",
+            "surface-container-high": "#2a2a2a",
+            "surface-container-highest": "#353535",
+            "surface-variant": "#353535",
+            outline: "#919191",
+            "outline-variant": "#474747",
+            primary: "#ffffff",
+            "on-primary": "#1a1c1c",
+            secondary: "#a4c9ff",
+            "on-secondary": "#001c39",
+            tertiary: "#e9ddff",
+            error: "#ffb4ab",
+            "error-container": "#93000a",
+            "on-error-container": "#ffdad6",
+            "on-surface": "#e2e2e2",
+            "on-surface-variant": "#c6c6c6"
+          },
+          fontFamily: {
+            headline: ["Manrope", "sans-serif"],
+            body: ["Inter", "sans-serif"],
+            label: ["Inter", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      background-color: #131313;
+      color: #e2e2e2;
+    }
+  </style>
+</head>
+<body class="font-body selection:bg-secondary selection:text-on-secondary">
+<main class="min-h-screen flex flex-col items-center justify-center relative px-6 py-20 overflow-hidden">
+  <div class="absolute inset-0 z-0 pointer-events-none">
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-tertiary opacity-[0.04] blur-[120px]"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary opacity-[0.04] blur-[120px]"></div>
+  </div>
+
+  <div id="alertContainer" class="fixed top-8 left-1/2 -translate-x-1/2 w-full max-w-md z-[100] space-y-3 px-4"></div>
+
+  <section class="relative z-10 w-full max-w-[420px]">
+    <div class="text-center mb-10">
+      <h1 class="font-headline text-5xl font-extrabold tracking-tighter text-white mb-2">SpringAuthStarter</h1>
+      <p class="font-label text-xs uppercase tracking-[0.3em] text-on-surface-variant opacity-60">System Entry Point</p>
+    </div>
+
+    <div class="bg-surface-container-low p-8 rounded-xl border border-outline-variant/10 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.6)]">
+      <div class="flex gap-8 mb-10 border-b border-outline-variant/20">
+        <button id="loginTab" class="pb-3 font-headline text-sm font-bold tracking-tight text-white border-b-2 border-white">Login</button>
+        <button id="registerTab" class="pb-3 font-headline text-sm font-bold tracking-tight text-on-surface-variant hover:text-white transition-colors">Register</button>
+      </div>
+
+      <form id="authForm" class="space-y-6">
+        <div id="usernameField" class="space-y-1.5 hidden">
+          <label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold">User Identity</label>
+          <input id="usernameInput" class="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 text-sm focus:ring-1 focus:ring-white/40 placeholder:text-outline/40 text-white" placeholder="Username" type="text" autocomplete="username" />
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold">Credential</label>
+          <input id="emailInput" required class="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 text-sm focus:ring-1 focus:ring-white/40 placeholder:text-outline/40 text-white" placeholder="Email Address" type="email" autocomplete="email" />
+        </div>
+
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center">
+            <label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold">Access Key</label>
+            <button id="forgotButton" type="button" class="text-[10px] uppercase tracking-widest text-secondary hover:underline">Forgot?</button>
+          </div>
+          <input id="passwordInput" required class="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 text-sm focus:ring-1 focus:ring-white/40 placeholder:text-outline/40 text-white" placeholder="********" type="password" autocomplete="current-password" />
+        </div>
+
+        <button id="submitButton" class="w-full bg-primary text-on-primary font-headline font-bold text-sm py-4 rounded-md hover:opacity-90 active:scale-[0.98] transition-all" type="submit">Initialize Session</button>
+        <div id="rateLimitCounter" class="rounded-md border border-outline-variant/20 bg-surface-container-high p-3 text-xs text-on-surface-variant">
+          Login Attempts: <span id="rateLimitUsed">0</span>/<span id="rateLimitLimit">0</span> used,
+          <span id="rateLimitRemaining">0</span> remaining
+        </div>
+      </form>
+
+      <div class="relative flex items-center my-8">
+        <div class="flex-grow border-t border-outline-variant/20"></div>
+        <span class="mx-4 font-label text-[10px] uppercase tracking-widest text-on-surface-variant opacity-40">External Auth</span>
+        <div class="flex-grow border-t border-outline-variant/20"></div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <button id="googleOAuthBtn" type="button" class="flex items-center justify-center gap-2 bg-surface-container-high border border-outline-variant/10 py-3 rounded-md hover:bg-surface-container-highest transition-colors group">
+          <span class="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-secondary">public</span>
+          <span class="font-label text-[10px] uppercase tracking-widest font-bold">Google</span>
+        </button>
+        <button id="githubOAuthBtn" type="button" class="flex items-center justify-center gap-2 bg-surface-container-high border border-outline-variant/10 py-3 rounded-md hover:bg-surface-container-highest transition-colors group">
+          <span class="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-white">code</span>
+          <span class="font-label text-[10px] uppercase tracking-widest font-bold">GitHub</span>
+        </button>
+      </div>
+    </div>
+
+    <p class="mt-8 text-center font-body text-[11px] text-on-surface-variant leading-relaxed opacity-50">
+      By accessing SpringAuthStarter you agree to our
+      <a class="underline hover:text-white" href="#">Protocol Terms</a> and
+      <a class="underline hover:text-white" href="#">Security Audits</a>.
+    </p>
+  </section>
+
+  <div class="fixed left-12 bottom-12 hidden lg:block">
+    <div class="flex flex-col gap-1">
+      <span class="font-headline text-[8px] tracking-[0.5em] text-on-surface-variant uppercase">Ver: 4.0.1_STABLE</span>
+      <span class="font-headline text-[8px] tracking-[0.5em] text-on-surface-variant uppercase">Node: DX-TR_900</span>
+    </div>
+  </div>
+</main>
+
+<script src="/auth-client.js"></script>
+<script>
+  const state = { mode: "login" };
+  const LOGIN_RATE_LIMIT_CAPACITY = 5;
+  const DASHBOARD_PATH = "/dashboard.html";
+  const ADMIN_DASHBOARD_PATH = "/admin-dashboard.html";
+
+  const loginTab = document.getElementById("loginTab");
+  const registerTab = document.getElementById("registerTab");
+  const usernameField = document.getElementById("usernameField");
+  const usernameInput = document.getElementById("usernameInput");
+  const emailInput = document.getElementById("emailInput");
+  const passwordInput = document.getElementById("passwordInput");
+  const authForm = document.getElementById("authForm");
+  const submitButton = document.getElementById("submitButton");
+  const rateLimitLimit = document.getElementById("rateLimitLimit");
+  const rateLimitUsed = document.getElementById("rateLimitUsed");
+  const rateLimitRemaining = document.getElementById("rateLimitRemaining");
+  const alertContainer = document.getElementById("alertContainer");
+  const forgotButton = document.getElementById("forgotButton");
+
+  function updateRateLimitUi(limit, used, remaining) {
+    rateLimitLimit.textContent = String(limit);
+    rateLimitUsed.textContent = String(used);
+    rateLimitRemaining.textContent = String(remaining);
+  }
+
+  function updateRateLimitFromHeaders(response) {
+    const limitHeader = response.headers.get("X-RateLimit-Limit");
+    const usedHeader = response.headers.get("X-RateLimit-Used");
+    const remainingHeader = response.headers.get("X-RateLimit-Remaining");
+
+    if (limitHeader == null && usedHeader == null && remainingHeader == null) {
+      return;
+    }
+
+    const limit = Number(limitHeader ?? LOGIN_RATE_LIMIT_CAPACITY);
+    const used = Number(usedHeader ?? 0);
+    const remaining = Number(remainingHeader ?? Math.max(limit - used, 0));
+
+    updateRateLimitUi(
+      Number.isFinite(limit) ? limit : LOGIN_RATE_LIMIT_CAPACITY,
+      Number.isFinite(used) ? used : 0,
+      Number.isFinite(remaining) ? remaining : 0
+    );
+  }
+
+  function redirectByRole() {
+    AuthClient.redirectByRole(DASHBOARD_PATH, ADMIN_DASHBOARD_PATH);
+  }
+
+  if (AuthClient.getAccessToken()) {
+    redirectByRole();
+  }
+
+  function switchMode(mode) {
+    state.mode = mode;
+    const isRegister = mode === "register";
+
+    usernameField.classList.toggle("hidden", !isRegister);
+    usernameInput.required = isRegister;
+
+    loginTab.className = isRegister
+      ? "pb-3 font-headline text-sm font-bold tracking-tight text-on-surface-variant hover:text-white transition-colors"
+      : "pb-3 font-headline text-sm font-bold tracking-tight text-white border-b-2 border-white";
+    registerTab.className = isRegister
+      ? "pb-3 font-headline text-sm font-bold tracking-tight text-white border-b-2 border-white"
+      : "pb-3 font-headline text-sm font-bold tracking-tight text-on-surface-variant hover:text-white transition-colors";
+
+    submitButton.textContent = isRegister ? "Create Identity" : "Initialize Session";
+    document.getElementById("rateLimitCounter").classList.toggle("hidden", isRegister);
+    passwordInput.setAttribute("autocomplete", isRegister ? "new-password" : "current-password");
+    authForm.reset();
+  }
+
+  async function refreshRateLimitCounter() {
+    try {
+      let response = await fetch("/api/rate-limit/login-status");
+      if (response.status === 404) {
+        response = await fetch("/rate-limit/login-status");
+      }
+      if (!response.ok) {
+        return;
+      }
+      const data = await response.json();
+      const limit = Number(data.limit ?? LOGIN_RATE_LIMIT_CAPACITY);
+      const used = Number(data.used ?? 0);
+      const remaining = Number(data.remaining ?? Math.max(limit - used, 0));
+      updateRateLimitUi(
+        Number.isFinite(limit) ? limit : LOGIN_RATE_LIMIT_CAPACITY,
+        Number.isFinite(used) ? used : 0,
+        Number.isFinite(remaining) ? remaining : 0
+      );
+    } catch (_error) {
+      updateRateLimitUi(LOGIN_RATE_LIMIT_CAPACITY, 0, LOGIN_RATE_LIMIT_CAPACITY);
+    }
+  }
+
+  function showAlert(title, message, kind = "neutral") {
+    const styles = {
+      neutral: "bg-surface-container-highest/80 border-outline-variant/30 text-on-surface-variant",
+      success: "bg-secondary/15 border-secondary/30 text-secondary",
+      error: "bg-error-container/20 border-error/30 text-on-error-container"
+    };
+
+    const icon = kind === "success" ? "check_circle" : kind === "error" ? "error" : "info";
+    const wrapper = document.createElement("div");
+    wrapper.className = `flex items-start gap-4 p-4 rounded-lg border backdrop-blur-md ${styles[kind]}`;
+    wrapper.innerHTML = `
+      <span class="material-symbols-outlined mt-0.5">${icon}</span>
+      <div class="flex-1">
+        <p class="font-label text-sm font-bold">${title}</p>
+        <p class="font-body text-xs opacity-90">${message}</p>
+      </div>
+      <button class="opacity-70 hover:opacity-100" aria-label="Dismiss">
+        <span class="material-symbols-outlined text-sm">close</span>
+      </button>
+    `;
+
+    wrapper.querySelector("button").addEventListener("click", () => wrapper.remove());
+    alertContainer.prepend(wrapper);
+    setTimeout(() => wrapper.remove(), 7000);
+  }
+
+  function getErrorMessage(payload, status) {
+    if (payload && typeof payload === "object") {
+      return payload.message || payload.error || `Request failed with status ${status}.`;
+    }
+    return `Request failed with status ${status}.`;
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    const username = usernameInput.value.trim();
+
+    const endpoint = state.mode === "register" ? "/api/auth/register" : "/api/auth/login";
+    const fallbackEndpoint = state.mode === "register" ? "/register" : "/login";
+    const body = state.mode === "register"
+      ? { email, username, password }
+      : { email, password };
+
+    submitButton.disabled = true;
+    submitButton.classList.add("opacity-70");
+
+    try {
+      let response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      if (response.status === 404) {
+        response = await fetch(fallbackEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+      }
+
+      if (state.mode === "login") {
+        updateRateLimitFromHeaders(response);
+      }
+
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : null;
+
+      if (!response.ok) {
+        showAlert(`${response.status} Request Failed`, getErrorMessage(data, response.status), "error");
+        await refreshRateLimitCounter();
+        return;
+      }
+
+      if (state.mode === "login" && data && data.accessToken) {
+        AuthClient.setTokens(data.accessToken, data.token);
+        await refreshRateLimitCounter();
+        await redirectByRole();
+        return;
+      }
+
+      showAlert(
+        state.mode === "register" ? "Registration Complete" : "Login Successful",
+        state.mode === "register"
+          ? "Account created. Switch to Login to initialize a session."
+          : "Session initialized.",
+        "success"
+      );
+
+      if (state.mode === "register") {
+        switchMode("login");
+      }
+    } catch (_error) {
+      showAlert("Network Error", "Could not reach server. Verify backend is running.", "error");
+      await refreshRateLimitCounter();
+    } finally {
+      submitButton.disabled = false;
+      submitButton.classList.remove("opacity-70");
+    }
+  }
+
+  loginTab.addEventListener("click", () => switchMode("login"));
+  registerTab.addEventListener("click", () => switchMode("register"));
+  forgotButton.addEventListener("click", () => showAlert("Reset Flow", "Use /docs to test recovery endpoints or add a password-reset endpoint.", "neutral"));
+  document.getElementById("googleOAuthBtn").addEventListener("click", () => AuthClient.startOAuth("google"));
+  document.getElementById("githubOAuthBtn").addEventListener("click", () => AuthClient.startOAuth("github"));
+  authForm.addEventListener("submit", handleSubmit);
+  updateRateLimitUi(LOGIN_RATE_LIMIT_CAPACITY, 0, LOGIN_RATE_LIMIT_CAPACITY);
+  refreshRateLimitCounter();
+</script>
+</body>
+</html>

@@ -1,0 +1,540 @@
+﻿<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AuthFlowSimulator - Monolithic Editorial</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "background": "#131313",
+          "surface": "#131313",
+          "inverse-surface": "#e2e2e2",
+          "secondary-fixed-dim": "#6eaeff",
+          "secondary": "#a4c9ff",
+          "surface-container-lowest": "#0e0e0e",
+          "primary-fixed-dim": "#454747",
+          "primary": "#ffffff",
+          "surface-dim": "#131313",
+          "primary-container": "#d4d4d4",
+          "error-container": "#93000a",
+          "secondary-fixed": "#a4c9ff",
+          "outline": "#919191",
+          "on-secondary-container": "#d4e3ff",
+          "on-error": "#690005",
+          "surface-container-low": "#1b1b1b",
+          "secondary-container": "#004883",
+          "on-primary-container": "#000000",
+          "on-primary": "#1a1c1c",
+          "surface-bright": "#393939",
+          "on-error-container": "#ffdad6",
+          "tertiary-container": "#a078ff",
+          "surface-variant": "#353535",
+          "on-secondary": "#001c39",
+          "surface-tint": "#c6c6c7",
+          "on-tertiary-fixed": "#ffffff",
+          "surface-container-high": "#2a2a2a",
+          "primary-fixed": "#5d5f5f",
+          "on-secondary-fixed": "#001c39",
+          "on-primary-fixed-variant": "#e2e2e2",
+          "surface-container": "#1f1f1f",
+          "tertiary": "#e9ddff",
+          "outline-variant": "#474747",
+          "tertiary-fixed": "#6d3bd7",
+          "on-surface": "#e2e2e2",
+          "surface-container-highest": "#353535",
+          "on-tertiary-fixed-variant": "#e9ddff",
+          "inverse-on-surface": "#303030",
+          "on-primary-fixed": "#ffffff",
+          "tertiary-fixed-dim": "#5516be",
+          "on-tertiary": "#23005c",
+          "error": "#ffb4ab",
+          "on-tertiary-container": "#000000",
+          "on-surface-variant": "#c6c6c6",
+          "on-background": "#e2e2e2",
+          "on-secondary-fixed-variant": "#003c70",
+          "inverse-primary": "#5d5f5f"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "fontFamily": {
+          "headline": ["Manrope", "sans-serif"],
+          "body": ["Inter", "sans-serif"],
+          "label": ["Inter", "sans-serif"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
+  .network-grid {
+    background-image: radial-gradient(circle, #474747 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .node-box { transition: all 220ms ease; }
+  .node-box.active {
+    box-shadow: 0 0 0 2px rgba(164, 201, 255, 0.7), 0 12px 32px rgba(0,0,0,0.35);
+    transform: translateY(-3px);
+  }
+  .edge { stroke: rgba(145,145,145,0.5); stroke-width: 2; stroke-dasharray: 8 6; }
+  .edge.active { stroke: #a4c9ff; stroke-width: 3; animation: edgePulse .65s ease infinite alternate; }
+  @keyframes edgePulse { from {opacity:.5;} to {opacity:1;} }
+</style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-tertiary selection:text-on-tertiary">
+<header class="fixed top-0 w-full z-50 bg-[#131313]/80 backdrop-blur-xl shadow-[0px_12px_32px_rgba(0,0,0,0.4)] flex justify-between items-center px-6 h-16">
+  <div class="flex items-center gap-4">
+    <span class="text-lg font-black tracking-tighter text-white">AUTH_FLOW_SIMULATOR</span>
+    <div class="hidden md:flex gap-6 items-center ml-8">
+      <span class="font-['Manrope'] uppercase tracking-[0.2em] text-[10px] font-bold text-white border-b border-white py-1">Simulation</span>
+      <span class="font-['Manrope'] uppercase tracking-[0.2em] text-[10px] font-bold text-[#c6c6c6] px-2 py-1">Security Graph</span>
+      <span class="font-['Manrope'] uppercase tracking-[0.2em] text-[10px] font-bold text-[#c6c6c6] px-2 py-1">Metrics</span>
+    </div>
+  </div>
+  <div class="flex items-center gap-4">
+    <a href="/index.html" class="p-2 hover:bg-[#2a2a2a] transition-colors rounded" title="Back to Login"><span class="material-symbols-outlined text-white">login</span></a>
+    <a href="/dashboard.html" class="p-2 hover:bg-[#2a2a2a] transition-colors rounded" title="User Dashboard"><span class="material-symbols-outlined text-white">person</span></a>
+    <a href="/admin-dashboard.html" class="p-2 hover:bg-[#2a2a2a] transition-colors rounded" title="Admin Dashboard"><span class="material-symbols-outlined text-white">shield</span></a>
+    <div class="h-8 w-8 rounded-full bg-tertiary-fixed flex items-center justify-center text-[10px] font-bold text-white ring-2 ring-white/10">OP</div>
+  </div>
+</header>
+
+<aside class="fixed left-0 top-0 h-full w-64 z-40 bg-[#1b1b1b] flex flex-col pt-20 pb-8 px-4">
+  <div class="mb-8 px-2">
+    <div class="flex items-center gap-3 p-3 bg-surface-container-high rounded-lg mb-4">
+      <div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center"><span class="material-symbols-outlined text-[#a078ff]">person</span></div>
+      <div>
+        <p class="text-xs font-bold text-white tracking-tight font-['Manrope']">Sim_Operator</p>
+        <p class="text-[10px] text-tertiary-container uppercase tracking-widest font-black">Privilege: ADMIN</p>
+      </div>
+    </div>
+  </div>
+  <nav class="flex-1 space-y-1">
+    <button data-focus="client" class="focus-btn w-full bg-[#2a2a2a] text-[#a078ff] font-bold border-l-2 border-[#a078ff] flex items-center gap-3 px-3 py-3 rounded-r transition-all duration-300 font-['Manrope'] text-sm tracking-tight"><span class="material-symbols-outlined">hub</span><span>Network Map</span></button>
+    <button data-focus="rate" class="focus-btn w-full text-left text-[#c6c6c6] hover:bg-[#2a2a2a] hover:text-white flex items-center gap-3 px-3 py-3 rounded transition-all duration-300 font-['Manrope'] text-sm tracking-tight"><span class="material-symbols-outlined">lock_open</span><span>Auth Logic</span></button>
+    <button data-focus="jwt" class="focus-btn w-full text-left text-[#c6c6c6] hover:bg-[#2a2a2a] hover:text-white flex items-center gap-3 px-3 py-3 rounded transition-all duration-300 font-['Manrope'] text-sm tracking-tight"><span class="material-symbols-outlined">verified_user</span><span>RBAC Policy</span></button>
+    <button data-focus="controller" class="focus-btn w-full text-left text-[#c6c6c6] hover:bg-[#2a2a2a] hover:text-white flex items-center gap-3 px-3 py-3 rounded transition-all duration-300 font-['Manrope'] text-sm tracking-tight"><span class="material-symbols-outlined">history</span><span>Session Lifecycle</span></button>
+    <button data-focus="db" class="focus-btn w-full text-left text-[#c6c6c6] hover:bg-[#2a2a2a] hover:text-white flex items-center gap-3 px-3 py-3 rounded transition-all duration-300 font-['Manrope'] text-sm tracking-tight"><span class="material-symbols-outlined">receipt_long</span><span>Audit Logs</span></button>
+  </nav>
+  <div class="pt-6 border-t border-outline-variant/20 space-y-2">
+    <button id="clearLogsBtn" class="w-full py-3 bg-surface-container-high text-white font-black text-xs tracking-widest rounded-lg hover:brightness-110 transition-all uppercase">Clear Logs</button>
+    <button id="resetMockBtn" class="w-full py-3 bg-tertiary-container text-on-tertiary-container font-black text-xs tracking-widest rounded-lg hover:brightness-110 transition-all uppercase">Reset Mock State</button>
+  </div>
+</aside>
+
+<main class="pl-64 pt-16 min-h-screen bg-background">
+  <div class="max-w-7xl mx-auto p-8 flex flex-col gap-8">
+    <section class="flex flex-col gap-2">
+      <h1 class="text-5xl font-['Manrope'] font-extrabold tracking-tighter text-white">Simulation Engine <span class="text-tertiary-container">v4.2</span></h1>
+      <p class="text-on-surface-variant max-w-2xl font-light text-lg">Stress-test authentication middleware logic in a real-time reactive environment (mock mode).</p>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div class="lg:col-span-3 h-[500px] relative bg-surface-container-low rounded-xl network-grid overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-tr from-surface-container-lowest/50 to-transparent pointer-events-none"></div>
+        <svg class="absolute inset-0 w-full h-full fill-none pointer-events-none">
+          <path id="edge-client-rate" class="edge" d="M120 250 L280 250"></path>
+          <path id="edge-rate-jwt" class="edge" d="M440 250 L600 250"></path>
+          <path id="edge-jwt-controller" class="edge" d="M760 250 L920 250"></path>
+          <path id="edge-controller-db" class="edge" d="M1080 250 L1240 250"></path>
+        </svg>
+
+        <div class="absolute inset-0 flex items-center justify-around px-8">
+          <div class="flex flex-col items-center gap-4">
+            <div id="node-client" class="node-box w-20 h-20 rounded-xl bg-surface-container-high ring-1 ring-white/5 flex items-center justify-center shadow-2xl"><span class="material-symbols-outlined text-secondary scale-150">laptop_mac</span></div>
+            <span class="font-['Manrope'] text-[10px] font-black uppercase tracking-widest text-white">React Client</span>
+          </div>
+          <div class="flex flex-col items-center gap-4">
+            <div id="node-rate" class="node-box w-20 h-20 rounded-xl bg-surface-container-high ring-1 ring-white/5 flex items-center justify-center shadow-2xl relative overflow-hidden"><div class="absolute top-0 w-full h-1 bg-secondary/20"></div><span class="material-symbols-outlined text-secondary scale-150">speed</span></div>
+            <span class="font-['Manrope'] text-[10px] font-black uppercase tracking-widest text-on-surface-variant">RateLimiter</span>
+          </div>
+          <div class="flex flex-col items-center gap-4">
+            <div id="node-jwt" class="node-box w-20 h-20 rounded-xl bg-surface-container-high ring-1 ring-white/5 flex items-center justify-center shadow-2xl relative overflow-hidden"><div class="absolute top-0 w-full h-1 bg-tertiary-container/20"></div><span class="material-symbols-outlined text-tertiary-container scale-150">vpn_key</span></div>
+            <span class="font-['Manrope'] text-[10px] font-black uppercase tracking-widest text-on-surface-variant">JwtFilter</span>
+          </div>
+          <div class="flex flex-col items-center gap-4">
+            <div id="node-controller" class="node-box w-20 h-20 rounded-xl bg-surface-container-high ring-1 ring-white/5 flex items-center justify-center shadow-2xl"><span class="material-symbols-outlined text-white scale-150">settings_input_component</span></div>
+            <span class="font-['Manrope'] text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Controllers</span>
+          </div>
+          <div class="flex flex-col items-center gap-4">
+            <div id="node-db" class="node-box w-20 h-20 rounded-xl bg-surface-container-high ring-1 ring-white/5 flex items-center justify-center shadow-2xl"><span class="material-symbols-outlined text-white scale-150">database</span></div>
+            <span class="font-['Manrope'] text-[10px] font-black uppercase tracking-widest text-white">Database</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-1 flex flex-col gap-6">
+        <div class="bg-surface-container-low rounded-xl p-5 flex flex-col gap-4">
+          <h3 class="font-['Manrope'] text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>AUTH ACTIONS</h3>
+          <div class="flex flex-col gap-2">
+            <button id="btn-login" class="w-full text-left px-4 py-3 bg-surface-container-highest text-white text-xs font-semibold rounded-lg hover:bg-white hover:text-background transition-colors flex justify-between items-center group">Login<span class="material-symbols-outlined text-sm opacity-0 group-hover:opacity-100 transition-all">play_arrow</span></button>
+            <button id="btn-spam" class="w-full text-left px-4 py-3 bg-surface-container-highest text-white text-xs font-semibold rounded-lg hover:bg-error-container hover:text-white transition-colors flex justify-between items-center group">Spam Login (429)<span class="material-symbols-outlined text-sm opacity-0 group-hover:opacity-100 transition-all">error</span></button>
+          </div>
+        </div>
+
+        <div class="bg-surface-container-low rounded-xl p-5 flex flex-col gap-4">
+          <h3 class="font-['Manrope'] text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-tertiary-container"></span>RBAC POLICY</h3>
+          <div class="flex flex-col gap-2">
+            <button id="btn-admin-ok" class="w-full text-left px-4 py-3 bg-surface-container-highest text-white text-xs font-semibold rounded-lg hover:bg-tertiary-container hover:text-background transition-colors flex justify-between items-center group">Admin -> /admin<span class="material-symbols-outlined text-sm opacity-0 group-hover:opacity-100 transition-all">verified_user</span></button>
+            <button id="btn-user-denied" class="w-full text-left px-4 py-3 bg-surface-container-highest text-white text-xs font-semibold rounded-lg hover:bg-error hover:text-on-error transition-colors flex justify-between items-center group">User -> /admin (403)<span class="material-symbols-outlined text-sm opacity-0 group-hover:opacity-100 transition-all">block</span></button>
+            <button id="btn-user-me" class="w-full text-left px-4 py-3 bg-surface-container-highest text-white text-xs font-semibold rounded-lg hover:bg-surface-bright transition-colors flex justify-between items-center group">User -> /me<span class="material-symbols-outlined text-sm opacity-0 group-hover:opacity-100 transition-all">person</span></button>
+          </div>
+        </div>
+
+        <div class="bg-surface-container-low rounded-xl p-5 flex flex-col gap-4">
+          <h3 class="font-['Manrope'] text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-outline"></span>LIFECYCLE</h3>
+          <div class="flex flex-col gap-2">
+            <button id="btn-expired" class="w-full text-left px-4 py-3 bg-surface-container-highest text-white text-xs font-semibold rounded-lg hover:bg-error-container transition-colors flex justify-between items-center group">Use Expired Token (401)<span class="material-symbols-outlined text-sm opacity-0 group-hover:opacity-100 transition-all">timer_off</span></button>
+            <button id="btn-refresh" class="w-full text-left px-4 py-3 bg-surface-container-highest text-white text-xs font-semibold rounded-lg hover:bg-secondary-container transition-colors flex justify-between items-center group">Refresh Token<span class="material-symbols-outlined text-sm opacity-0 group-hover:opacity-100 transition-all">refresh</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-full bg-surface-container-lowest rounded-xl border border-outline-variant/10 flex flex-col h-80 overflow-hidden shadow-2xl">
+      <div class="px-6 py-3 bg-surface-container-low flex justify-between items-center border-b border-outline-variant/10">
+        <div class="flex items-center gap-3">
+          <div class="flex gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-error-container/40"></div><div class="w-2.5 h-2.5 rounded-full bg-tertiary-container/40"></div><div class="w-2.5 h-2.5 rounded-full bg-secondary-container/40"></div></div>
+          <span class="font-['Manrope'] text-[10px] font-bold text-on-surface-variant tracking-widest uppercase">System Terminal — Network Log</span>
+        </div>
+        <div class="flex gap-4"><span class="text-[10px] font-mono text-outline">STREAMS: 4</span><span id="statusText" class="text-[10px] font-mono text-outline">STATUS: LISTENING</span></div>
+      </div>
+      <div id="logContainer" class="flex-1 p-6 font-mono text-[11px] leading-relaxed overflow-y-auto space-y-1.5"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="p-6 bg-surface-container-low rounded-xl flex flex-col gap-4">
+        <div class="flex justify-between items-start"><span class="font-['Manrope'] text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Request Velocity</span><span class="material-symbols-outlined text-secondary">trending_up</span></div>
+        <div class="text-4xl font-light font-['Manrope'] text-white"><span id="reqVelocity">0.0</span> <span class="text-sm font-bold text-outline">req/s</span></div>
+        <div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden"><div id="velocityBar" class="w-0 h-full bg-secondary"></div></div>
+      </div>
+      <div class="p-6 bg-surface-container-low rounded-xl flex flex-col gap-4">
+        <div class="flex justify-between items-start"><span class="font-['Manrope'] text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Auth Failure Rate</span><span class="material-symbols-outlined text-error">gpp_maybe</span></div>
+        <div class="text-4xl font-light font-['Manrope'] text-white"><span id="failureRate">0.00</span> <span class="text-sm font-bold text-outline">%</span></div>
+        <div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden"><div id="failureBar" class="w-0 h-full bg-error"></div></div>
+      </div>
+      <div class="p-6 bg-surface-container-low rounded-xl flex flex-col gap-4">
+        <div class="flex justify-between items-start"><span class="font-['Manrope'] text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Avg Session Age</span><span class="material-symbols-outlined text-tertiary-container">schedule</span></div>
+        <div class="text-4xl font-light font-['Manrope'] text-white"><span id="sessionAge">0.0</span> <span class="text-sm font-bold text-outline">min</span></div>
+        <div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden"><div id="sessionBar" class="w-0 h-full bg-tertiary-container"></div></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="fixed bottom-8 right-8 w-80 bg-surface-container-high/60 backdrop-blur-2xl border border-outline-variant/10 rounded-2xl p-6 shadow-[0px_12px_32px_rgba(0,0,0,0.4)] z-50">
+  <div class="flex flex-col gap-4">
+    <div class="flex items-center gap-3"><span class="material-symbols-outlined text-tertiary-container">info</span><span class="font-['Manrope'] text-xs font-black uppercase tracking-widest text-white">Logic Overview</span></div>
+    <p class="text-xs text-on-surface-variant leading-relaxed">Mock engine simulates Spring Security flow with visual node tracing and terminal-style logs. No real API calls are made.</p>
+    <div class="p-3 bg-surface-container-highest/40 rounded-lg"><code class="text-[10px] text-tertiary font-mono">.requestMatchers("/admin/**")<br/>.hasRole("ADMIN")</code></div>
+    <button id="openConfigBtn" class="text-[10px] font-black uppercase tracking-widest text-secondary hover:text-white transition-colors text-left mt-2">Open Config Editor</button>
+  </div>
+</div>
+
+<script>
+  const nodes = {
+    client: document.getElementById('node-client'),
+    rate: document.getElementById('node-rate'),
+    jwt: document.getElementById('node-jwt'),
+    controller: document.getElementById('node-controller'),
+    db: document.getElementById('node-db')
+  };
+  const edges = {
+    clientRate: document.getElementById('edge-client-rate'),
+    rateJwt: document.getElementById('edge-rate-jwt'),
+    jwtController: document.getElementById('edge-jwt-controller'),
+    controllerDb: document.getElementById('edge-controller-db')
+  };
+
+  const logContainer = document.getElementById('logContainer');
+  const statusText = document.getElementById('statusText');
+
+  const metrics = {
+    calls: 0,
+    failures: 0,
+    latencyTotal: 0,
+    startedAt: Date.now(),
+    sessionCreatedAt: null
+  };
+
+  const mock = {
+    role: 'USER',
+    accessToken: null,
+    refreshToken: null,
+    loginCapacity: 50,
+    loginRemaining: 50,
+    loginResetAt: Date.now() + 5 * 60 * 1000
+  };
+
+  function t() {
+    return new Date().toLocaleTimeString('en-GB', { hour12: false });
+  }
+
+  function setStatus(value) { statusText.textContent = `STATUS: ${value}`; }
+
+  function log(level, msg) {
+    const colors = {
+      INFO: 'text-outline',
+      TRACE: 'text-primary',
+      STEP: 'text-secondary',
+      SUCCESS: 'text-tertiary-container font-bold',
+      ERROR: 'text-error font-bold'
+    };
+    const p = document.createElement('p');
+    p.className = `flex gap-3 ${colors[level] || 'text-on-surface-variant'}`;
+    p.innerHTML = `<span class="text-outline-variant">[${t()}]</span><span>${msg}</span>`;
+    logContainer.prepend(p);
+  }
+
+  function clearHighlights() {
+    Object.values(nodes).forEach((n) => n.classList.remove('active'));
+    Object.values(edges).forEach((e) => e.classList.remove('active'));
+  }
+
+  async function animateFlow(steps, stepDelay = 220) {
+    clearHighlights();
+    for (const step of steps) {
+      if (step.node && nodes[step.node]) nodes[step.node].classList.add('active');
+      if (step.edge && edges[step.edge]) edges[step.edge].classList.add('active');
+      await new Promise((r) => setTimeout(r, stepDelay));
+    }
+  }
+
+  function updateMetrics(latencyMs, success) {
+    metrics.calls += 1;
+    metrics.latencyTotal += latencyMs;
+    if (!success) metrics.failures += 1;
+
+    const elapsedSec = Math.max((Date.now() - metrics.startedAt) / 1000, 1);
+    const reqPerSec = (metrics.calls / elapsedSec).toFixed(1);
+    const failureRate = ((metrics.failures / metrics.calls) * 100).toFixed(2);
+
+    document.getElementById('reqVelocity').textContent = reqPerSec;
+    document.getElementById('failureRate').textContent = failureRate;
+
+    const velocityPct = Math.min((Number(reqPerSec) / 10) * 100, 100);
+    const failurePct = Math.min(Number(failureRate), 100);
+    document.getElementById('velocityBar').style.width = `${velocityPct}%`;
+    document.getElementById('failureBar').style.width = `${failurePct}%`;
+
+    if (metrics.sessionCreatedAt) {
+      const ageMin = ((Date.now() - metrics.sessionCreatedAt) / 60000).toFixed(1);
+      document.getElementById('sessionAge').textContent = ageMin;
+      document.getElementById('sessionBar').style.width = `${Math.min((Number(ageMin) / 30) * 100, 100)}%`;
+    } else {
+      document.getElementById('sessionAge').textContent = '0.0';
+      document.getElementById('sessionBar').style.width = '0%';
+    }
+  }
+
+  function maybeResetLoginBucket() {
+    if (Date.now() >= mock.loginResetAt) {
+      mock.loginRemaining = mock.loginCapacity;
+      mock.loginResetAt = Date.now() + 5 * 60 * 1000;
+      log('INFO', 'RateLimiter bucket refilled to full capacity.');
+    }
+  }
+
+  function randomLatency(min = 24, max = 140) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  async function runAction(name, flow, actionFn) {
+    setStatus(`RUNNING ${name}`);
+    await animateFlow(flow);
+
+    const latency = randomLatency();
+    await new Promise((r) => setTimeout(r, latency));
+
+    maybeResetLoginBucket();
+    const result = actionFn();
+    updateMetrics(latency, result.success);
+
+    clearHighlights();
+    setStatus('LISTENING');
+  }
+
+  async function doLogin() {
+    await runAction('LOGIN', [
+      { node: 'client', edge: 'clientRate' },
+      { node: 'rate', edge: 'rateJwt' },
+      { node: 'jwt', edge: 'jwtController' },
+      { node: 'controller', edge: 'controllerDb' },
+      { node: 'db' }
+    ], () => {
+      if (mock.loginRemaining <= 0) {
+        log('ERROR', 'RateLimiter: REJECTING REQUEST. Burst capacity exceeded (429 Too Many Requests).');
+        return { success: false };
+      }
+
+      mock.loginRemaining -= 1;
+      mock.accessToken = `mock_jwt_${Math.random().toString(36).slice(2, 10)}`;
+      mock.refreshToken = `mock_refresh_${Math.random().toString(36).slice(2, 10)}`;
+      metrics.sessionCreatedAt = Date.now();
+
+      log('TRACE', 'ReactClient: Attempting POST /api/auth/login (MOCK)');
+      log('STEP', `RateLimiter: Bucket checked. Tokens remaining: ${mock.loginRemaining}/${mock.loginCapacity}`);
+      log('SUCCESS', `AuthController: 200 OK. Tokens issued for role '${mock.role}'.`);
+      return { success: true };
+    });
+  }
+
+  async function doSpamLogin() {
+    setStatus('RUNNING SPAM LOGIN');
+    for (let i = 0; i < 8; i++) {
+      await animateFlow([
+        { node: 'client', edge: 'clientRate' },
+        { node: 'rate' }
+      ], 120);
+      const latency = randomLatency(18, 60);
+      await new Promise((r) => setTimeout(r, latency));
+
+      maybeResetLoginBucket();
+      if (mock.loginRemaining <= 0) {
+        log('ERROR', `RateLimiter: REJECTING REQUEST at burst #${i + 1}. HTTP 429`);
+        updateMetrics(latency, false);
+        break;
+      }
+
+      mock.loginRemaining -= 1;
+      log('STEP', `Burst #${i + 1}: 200 OK | bucket=${mock.loginRemaining}/${mock.loginCapacity}`);
+      updateMetrics(latency, true);
+    }
+    clearHighlights();
+    setStatus('LISTENING');
+  }
+
+  async function doAdminAllowed() {
+    await runAction('RBAC ADMIN CHECK', [
+      { node: 'client', edge: 'clientRate' },
+      { node: 'rate', edge: 'rateJwt' },
+      { node: 'jwt', edge: 'jwtController' },
+      { node: 'controller' }
+    ], () => {
+      mock.role = 'ADMIN';
+      log('TRACE', 'GET /admin/users (MOCK) with ROLE_ADMIN');
+      log('SUCCESS', 'AdminController: 200 OK. Access granted to admin resource.');
+      return { success: true };
+    });
+  }
+
+  async function doUserDenied() {
+    await runAction('RBAC USER DENIED', [
+      { node: 'client', edge: 'clientRate' },
+      { node: 'rate', edge: 'rateJwt' },
+      { node: 'jwt', edge: 'jwtController' },
+      { node: 'controller' }
+    ], () => {
+      mock.role = 'USER';
+      log('TRACE', 'GET /admin/users (MOCK) with ROLE_USER');
+      log('ERROR', "AdminController: 403 Access Denied for principal 'mock-user'.");
+      return { success: false };
+    });
+  }
+
+  async function doUserMe() {
+    await runAction('USER /ME', [
+      { node: 'client', edge: 'clientRate' },
+      { node: 'rate', edge: 'rateJwt' },
+      { node: 'jwt', edge: 'jwtController' },
+      { node: 'controller', edge: 'controllerDb' },
+      { node: 'db' }
+    ], () => {
+      mock.role = 'USER';
+      log('TRACE', 'GET /api/user/me (MOCK)');
+      log('SUCCESS', 'UserController: 200 OK. User profile payload returned.');
+      return { success: true };
+    });
+  }
+
+  async function doExpiredToken() {
+    await runAction('EXPIRED TOKEN', [
+      { node: 'client', edge: 'clientRate' },
+      { node: 'rate', edge: 'rateJwt' },
+      { node: 'jwt' }
+    ], () => {
+      log('TRACE', 'GET /api/user/me with expired bearer (MOCK)');
+      log('ERROR', 'JwtFilter: 401 Unauthorized. Token expired.');
+      return { success: false };
+    });
+  }
+
+  async function doRefreshToken() {
+    await runAction('REFRESH TOKEN', [
+      { node: 'client', edge: 'rateJwt' },
+      { node: 'jwt', edge: 'jwtController' },
+      { node: 'controller', edge: 'controllerDb' },
+      { node: 'db' }
+    ], () => {
+      if (!mock.refreshToken) {
+        log('ERROR', 'RefreshToken: No refresh token present in mock session.');
+        return { success: false };
+      }
+      mock.accessToken = `mock_jwt_${Math.random().toString(36).slice(2, 10)}`;
+      log('STEP', 'RefreshTokenService: validated refresh token (MOCK).');
+      log('SUCCESS', 'AuthController: 200 OK. New access token issued.');
+      return { success: true };
+    });
+  }
+
+  function resetMockState() {
+    mock.role = 'USER';
+    mock.accessToken = null;
+    mock.refreshToken = null;
+    mock.loginRemaining = mock.loginCapacity;
+    mock.loginResetAt = Date.now() + 5 * 60 * 1000;
+    metrics.calls = 0;
+    metrics.failures = 0;
+    metrics.latencyTotal = 0;
+    metrics.startedAt = Date.now();
+    metrics.sessionCreatedAt = null;
+    document.getElementById('reqVelocity').textContent = '0.0';
+    document.getElementById('failureRate').textContent = '0.00';
+    document.getElementById('sessionAge').textContent = '0.0';
+    document.getElementById('velocityBar').style.width = '0%';
+    document.getElementById('failureBar').style.width = '0%';
+    document.getElementById('sessionBar').style.width = '0%';
+    log('INFO', 'Mock state reset. Bucket and session counters restored.');
+  }
+
+  document.getElementById('btn-login').addEventListener('click', doLogin);
+  document.getElementById('btn-spam').addEventListener('click', doSpamLogin);
+  document.getElementById('btn-admin-ok').addEventListener('click', doAdminAllowed);
+  document.getElementById('btn-user-denied').addEventListener('click', doUserDenied);
+  document.getElementById('btn-user-me').addEventListener('click', doUserMe);
+  document.getElementById('btn-expired').addEventListener('click', doExpiredToken);
+  document.getElementById('btn-refresh').addEventListener('click', doRefreshToken);
+  document.getElementById('clearLogsBtn').addEventListener('click', () => { logContainer.innerHTML = ''; log('INFO', 'Terminal buffer cleared.'); });
+  document.getElementById('resetMockBtn').addEventListener('click', resetMockState);
+  document.getElementById('openConfigBtn').addEventListener('click', () => {
+    log('INFO', 'Config editor is mocked in this simulation view.');
+  });
+
+  document.querySelectorAll('.focus-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const focus = btn.getAttribute('data-focus');
+      clearHighlights();
+      if (nodes[focus]) nodes[focus].classList.add('active');
+      log('STEP', `Focus moved to node: ${focus}`);
+    });
+  });
+
+  log('INFO', 'Ready. Awaiting simulation trigger...');
+  log('TRACE', 'INITIALIZING AUTH_FLOW_SIMULATOR CONTEXT (MOCK)...');
+  log('STEP', 'Security Filter Chain simulated with 14 active filters.');
+  log('STEP', `RateLimiter bucket initialized: ${mock.loginRemaining}/${mock.loginCapacity}`);
+</script>
+</body></html>

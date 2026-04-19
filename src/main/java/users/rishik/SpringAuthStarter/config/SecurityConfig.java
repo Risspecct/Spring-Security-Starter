@@ -55,6 +55,7 @@ public class SecurityConfig {
                                 "/index.html",
                                 "/dashboard.html",
                                 "/admin-dashboard.html",
+                                "/simulator.html",
                                 "/auth-client.js",
                                 "/favicon.ico",
                                 "/error",
